@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from apps.service.models import Service
+from apps.services.models import Service
 
 
 @admin.register(Service)

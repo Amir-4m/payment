@@ -34,7 +34,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost', cast=Csv())
 
 INSTALLED_APPS = [
     'apps.payments',
-    'apps.service',
+    'apps.services',
 
     'django.contrib.admin',
     'django.contrib.auth',
