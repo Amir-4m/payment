@@ -1,10 +1,7 @@
-from rest_framework import viewsets, mixins, views
-from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, ParseError
-from rest_framework.response import Response
+from rest_framework import viewsets, mixins
 
-from ..models import Gateway
-from .serializers import GatewaySerializer
+from ..models import Gateway, Order
+from .serializers import GatewaySerializer, OrderSerializer
 from ...services.authentications import ServiceAuthentication
 
 
@@ -17,3 +14,9 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         service = self.request.auth['service']
         qs = super(ServiceGatewayViewSet, self).get_queryset()
         return qs.filter(is_enable=True, services=service)
+
+
+class OrderViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    authentication_classes = (ServiceAuthentication,)
