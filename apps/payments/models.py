@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,6 +26,19 @@ class Gateway(models.Model):
     code = models.PositiveSmallIntegerField(_("code"), choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     services = models.ManyToManyField(Service, related_name='gateways', through='ServiceGateway')
     is_enable = models.BooleanField(default=True)
+
+    def clean(self):
+        bazaar_params = ['auth_code', 'client_id', 'redirect_uri', 'client_secret']
+        bank_params = ['verify_url', 'gateway_url', 'merchant_id']
+
+        if self.code == self.FUNCTION_BAZAAR:
+            for param in bazaar_params:
+                if param not in self.properties:
+                    raise ValidationError(f"{param} should be provided in gateway properties!")
+        else:
+            for param in bank_params:
+                if param not in self.properties:
+                    raise ValidationError(f"{param} should be provided in gateway properties!")
 
 
 class ServiceGateway(models.Model):
