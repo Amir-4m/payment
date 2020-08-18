@@ -6,8 +6,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from .models import ServiceGateway, Order
-from .services import SamanService
+from .models import ServiceGateway, Order, Gateway
+from .services import SamanService, BazaarService
 
 
 def bazaar_token_view(request, *args, **kwargs):
@@ -62,12 +62,12 @@ class PayView(View):
         """
         this method use for bank response posts
         """
-        payment_status = False
-        received_data = request.POST
-        invoice_number = received_data.get("ResNum") or request.GET.get('invoice_number')
+        purchase_verified = False
+        data = request.POST
+        invoice_number = data.get("ResNum") or request.GET.get('invoice_number')
 
         if not invoice_number:
-            return JsonResponse({'payment_status': payment_status, 'data': received_data})
+            return JsonResponse({'payment_status': purchase_verified, 'data': data})
         # check and validate parameters
         try:
             payment = Order.objects.select_related(
@@ -82,15 +82,21 @@ class PayView(View):
             pass
         else:
             # !!! Very important to check none so if a payment has been verified before don't do it again
-            if payment.is_paid is None:
-                SamanService().verify_saman(
+            if payment.is_paid is None and payment.service_gateway.gateway.code == Gateway.FUNCTION_SAMAN:
+                purchase_verified = SamanService().verify_saman(
                     payment,
-                    received_data
+                    data
 
                 )
-            payment_status = payment.is_paid
+            elif payment.is_paid is None and payment.service_gateway.gateway.code == Gateway.FUNCTION_BAZAAR:
+                if not data.get('purchase_token'):
+                    return JsonResponse({'error': "purchase_token is required!"})
+                purchase_verified = BazaarService.verify_purchase(
+                    payment,
+                    data.get('purchase_token')
+                )
 
-        return JsonResponse({'payment_status': payment_status, 'data': received_data})
+        return JsonResponse({'payment_status': purchase_verified, 'data': data})
 
 
 def render_bank_page(

@@ -94,6 +94,11 @@ CACHES = {
         'LOCATION': config('CACHE_HOST', default=''),
         'KEY_PREFIX': 'INSTA_MONITORING',
     },
+    'payments': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': 'apps/payments/access_token',
+        'TIMEOUT': 3600
+    }
 }
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -202,7 +207,6 @@ LOGGING = ({
 
     },
 })
-
 
 # if DEVEL is False:
 #     import sentry_sdk

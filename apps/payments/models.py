@@ -44,7 +44,11 @@ class Order(models.Model):
     invoice_number = models.CharField(_('invoice_number'), max_length=100, unique=True)
     reference_id = models.CharField(_("reference id"), max_length=100, db_index=True, blank=True)
     log = models.TextField(_("payment log"), blank=True)
-    properties = JSONField(_("properties"), default=dict)
+    properties = JSONField(_("properties"), blank=True, default=dict)
     is_paid = models.BooleanField(_("is paid"), null=True)
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
+
+    def clean(self):
+        if self.properties is None:
+            self.properties = {}
