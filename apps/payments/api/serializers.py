@@ -37,6 +37,12 @@ class OrderSerializer(serializers.ModelSerializer):
         except ServiceGateway.DoesNotExist:
             raise ValidationError(detail={'detail': _("Service gateway does not exists!")})
 
-    def validate_service_reference(self, value):
-        if Order.objects.filter(service_reference=value).exists():
-            raise ValidationError(detail={'detail': _("Order with this reference already exists!")})
+    def validate(self, attrs):
+        request = self.context['request']
+        service_reference = attrs.get('service_reference')
+        if Order.objects.filter(
+                service_gateway__service=request.auth['service'],
+                service_reference=service_reference
+        ).exists():
+            raise ValidationError(detail={'detail': _("Order with this service and reference service already exists!")})
+        return attrs

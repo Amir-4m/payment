@@ -6,4 +6,4 @@ from apps.services.models import Service
 
 @admin.register(Service)
 class ServiceModelAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name')
+    list_display = ('id', 'name', 'secret_key')

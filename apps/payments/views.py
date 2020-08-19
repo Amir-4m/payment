@@ -30,7 +30,7 @@ class PayView(View):
         try:
             service_gateway = ServiceGateway.objects.select_related('gateway').get(
                 gateway=request.GET['gateway'],
-                service__uuid=request.GET['service'],
+                service__secret_key=request.GET['service'],
                 is_enable=True,
                 gateway__properties__merchant_id__isnull=False,
                 gateway__properties__gateway_url__isnull=False,

@@ -30,7 +30,7 @@ class PaymentBaseAPITestCase(APITestCase):
         self.service = Service.objects.first()
         self.client = APIClient()
         self.request = RequestFactory()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + str(self.service.uuid))
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + str(self.service.secret_key))
         logging.disable(logging.CRITICAL)
 
     def tearDown(self):
@@ -148,7 +148,7 @@ class PaymentViewTestCase(TestCase):
         params = {
             'invoice_number': 'test',
             'gateway': 5,
-            'service': '0178f792-10e2-42ff-9d00-9e906893d2aa'
+            'service': "test"
         }
         response = self.client.get(url, data=params)
 
@@ -160,7 +160,7 @@ class PaymentViewTestCase(TestCase):
         params = {
             'invoice_number': '0178f792-10e2-42ff-9d00-9e906893d2aa',
             'gateway': 1,
-            'service': '0178f792-10e2-42ff-9d00-9e906893d2aa'
+            'service': "test"
         }
         response = self.client.get(url, data=params)
 
@@ -175,7 +175,7 @@ class PaymentViewTestCase(TestCase):
         params = {
             'invoice_number': order.invoice_number,
             'gateway': gateway.id,
-            'service': service.uuid
+            'service': service.secret_key
         }
 
         html = f"""
