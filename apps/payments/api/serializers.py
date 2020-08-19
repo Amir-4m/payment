@@ -22,7 +22,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('service_gateway', 'price', 'invoice_number', 'reference_id', 'is_paid', 'properties')
+        fields = (
+            'service_gateway', 'price', 'service_reference',
+            'invoice_number', 'reference_id', 'is_paid', 'properties'
+        )
 
     def validate_service_gateway(self, obj):
         request = self.context['request']
@@ -33,3 +36,7 @@ class OrderSerializer(serializers.ModelSerializer):
             return service_gateway
         except ServiceGateway.DoesNotExist:
             raise ValidationError(detail={'detail': _("Service gateway does not exists!")})
+
+    def validate_service_reference(self, value):
+        if Order.objects.filter(service_reference=value).exists():
+            raise ValidationError(detail={'detail': _("Order with this reference already exists!")})

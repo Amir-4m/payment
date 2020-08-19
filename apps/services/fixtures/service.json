@@ -1,0 +1,9 @@
+[
+  {
+    "model": "services.service",
+    "pk": "0178f792-10e2-42ff-9d00-9e906893d2aa",
+    "fields": {
+      "name": "test service"
+    }
+  }
+]

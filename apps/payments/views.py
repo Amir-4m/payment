@@ -38,7 +38,6 @@ class PayView(View):
             )
         except ServiceGateway.DoesNotExist:
             return HttpResponse("")
-
         try:
             payment = Order.objects.get(
                 invoice_number=request.GET['invoice_number'],
@@ -76,25 +75,26 @@ class PayView(View):
             ).select_for_update().get(
                 invoice_number=invoice_number
             )
-        except Order.DoesNotExist:
-            pass
-        except Exception as e:
-            pass
-        else:
-            # !!! Very important to check none so if a payment has been verified before don't do it again
             if payment.is_paid is None and payment.service_gateway.gateway.code == Gateway.FUNCTION_SAMAN:
                 purchase_verified = SamanService().verify_saman(
-                    payment,
-                    data
+                    order=payment,
+                    data=data
 
                 )
             elif payment.is_paid is None and payment.service_gateway.gateway.code == Gateway.FUNCTION_BAZAAR:
                 if not data.get('purchase_token'):
                     return JsonResponse({'error': "purchase_token is required!"})
                 purchase_verified = BazaarService.verify_purchase(
-                    payment,
-                    data.get('purchase_token')
+                    order=payment,
+                    purchase_token=data.get('purchase_token')
                 )
+            else:
+                purchase_verified = payment.is_paid
+
+        except Order.DoesNotExist:
+            pass
+        except Exception as e:
+            pass
 
         return JsonResponse({'payment_status': purchase_verified, 'data': data})
 
