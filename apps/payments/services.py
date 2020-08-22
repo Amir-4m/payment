@@ -65,7 +65,7 @@ class BazaarService(object):
         )
         iab_url = "{}/{}".format(iab_base_api, iab_api_path)
         try:
-            access_token = BazaarService.get_access_token(order.service_gateway.gateway)
+            access_token = BazaarService.get_access_token(order.gateway)
             headers = {'Authorization': access_token}
             response = requests.get(iab_url, headers=headers)
             order.log = response.json()
@@ -87,7 +87,6 @@ class SamanService:
         reference_id = data.get("RefNum", "")
         order.log = json.dumps(data)
         purchase_verified = False
-
         if data.get("State", "") != "OK":
             order.properties.update({"result_code": data.get("State", "")})
 
@@ -101,8 +100,8 @@ class SamanService:
             )
 
             try:
-                wsdl = order.service_gateway.gateway.properties.get('verify_url'),
-                mid = order.service_gateway.gateway.properties.get('merchant_id'),
+                wsdl = order.gateway.properties.get('verify_url')
+                mid = order.gateway.properties.get('merchant_id')
                 client = zeep.Client(wsdl=wsdl, transport=self.transport)
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
                 if int(res) == order.price * 10:
