@@ -21,8 +21,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'gateway', 'price', 'service_reference',
-            'invoice_number', 'reference_id', 'is_paid', 'properties'
+            'gateway', 'price', 'service_reference', 'is_paid'
         )
 
     def validate_gateway(self, obj):
