@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
@@ -31,27 +31,23 @@ class BankView(View):
         if not ('service_reference' in request.GET or 'gateway' in request.GET or 'service' in request.GET):
             return HttpResponse("")
 
-        try:
-            gateway = Gateway.objects.get(
-                id=request.GET['gateway'],
-                services__secret_key=request.GET['service'],
-                is_enable=True,
-                properties__merchant_id__isnull=False,
-                properties__gateway_url__isnull=False,
-                properties__verify_url__isnull=False
-            )
-        except Gateway.DoesNotExist:
-            return HttpResponse("")
-        try:
-            payment = Order.objects.get(
-                service_reference=request.GET['service_reference'],
-                gateway=gateway,
-                service__secret_key=request.GET['service'],
-                is_paid=None,
-                properties__redirect_url__isnull=False
-            )
-        except Order.DoesNotExist:
-            return HttpResponse("")
+        gateway = get_object_or_404(
+            Gateway,
+            id=request.GET['gateway'],
+            services__secret_key=request.GET['service'],
+            is_enable=True,
+            properties__merchant_id__isnull=False,
+            properties__gateway_url__isnull=False,
+            properties__verify_url__isnull=False)
+
+        payment = get_object_or_404(
+            Order,
+            service_reference=request.GET['service_reference'],
+            gateway=gateway,
+            service__secret_key=request.GET['service'],
+            is_paid=None,
+            properties__redirect_url__isnull=False
+        )
 
         return render_bank_page(
             request,
