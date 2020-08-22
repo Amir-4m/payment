@@ -59,7 +59,5 @@ class Order(models.Model):
         unique_together = ('service', 'service_reference')
 
     def clean(self):
-        if self.properties is None:
-            self.properties = {}
         if self.gateway.code == Gateway.FUNCTION_SAMAN and 'redirect_url' not in self.properties:
-            raise ValidationError(f"redirect_url should be provided in gateway properties!")
+            raise ValidationError("redirect_url should be provided in gateway properties!")

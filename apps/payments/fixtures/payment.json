@@ -93,49 +93,19 @@
     }
   },
   {
-    "model": "payments.servicegateway",
+    "model": "payments.order",
     "pk": 1,
     "fields": {
       "service": 1,
       "gateway": 1,
-      "is_enable": true,
-      "created_time": "2020-08-16T07:58:46.265Z",
-      "updated_time": "2020-08-16T07:58:46.265Z"
-    }
-  },
-  {
-    "model": "payments.servicegateway",
-    "pk": 2,
-    "fields": {
-      "service": 1,
-      "gateway": 2,
-      "is_enable": false,
-      "created_time": "2020-08-18T07:23:44.520Z",
-      "updated_time": "2020-08-18T07:23:44.520Z"
-    }
-  },
-  {
-    "model": "payments.servicegateway",
-    "pk": 3,
-    "fields": {
-      "service": 1,
-      "gateway": 3,
-      "is_enable": false,
-      "created_time": "2020-08-18T07:23:44.520Z",
-      "updated_time": "2020-08-18T07:23:44.520Z"
-    }
-  },
-  {
-    "model": "payments.order",
-    "pk": 1,
-    "fields": {
-      "service_gateway": 1,
       "service_reference": 1,
       "price": 1000,
       "invoice_number": "cd61b980-6c9c-42fb-877f-0614054f56b6",
       "reference_id": "",
       "log": "",
-      "properties": {},
+      "properties": {
+        "redirect_url": "http://127.0.0.1:9099/"
+      },
       "is_paid": null,
       "created_time": "2020-08-16T10:19:41.221Z",
       "updated_time": "2020-08-16T10:19:41.221Z"
@@ -145,13 +115,16 @@
     "model": "payments.order",
     "pk": 2,
     "fields": {
-      "service_gateway": 2,
+      "service": 1,
+      "gateway": 2,
       "service_reference": 2,
       "price": 500,
       "invoice_number": "21877ef0-47fe-4cc7-8057-83fc0ee73416",
       "reference_id": "asfawfaw",
       "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
-      "properties": {},
+      "properties": {
+        "redirect_url": "http://127.0.0.1:9099/"
+      },
       "is_paid": null,
       "created_time": "2020-08-16T10:20:58.668Z",
       "updated_time": "2020-08-18T08:00:51.692Z"
@@ -161,14 +134,36 @@
     "model": "payments.order",
     "pk": 3,
     "fields": {
-      "service_gateway": 3,
+      "service": 1,
+      "gateway": 3,
       "service_reference": 3,
       "price": 500,
       "invoice_number": "21477ef0-47fe-4cc7-8057-83fc0ee73416",
       "reference_id": "asfawfaw",
       "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
-      "properties": {},
+      "properties": {
+        "redirect_url": "http://127.0.0.1:9099/"
+      },
       "is_paid": true,
+      "created_time": "2020-08-16T10:20:58.668Z",
+      "updated_time": "2020-08-18T08:00:51.692Z"
+    }
+  },
+  {
+    "model": "payments.order",
+    "pk": 4,
+    "fields": {
+      "service": 2,
+      "gateway": 2,
+      "service_reference": 5,
+      "price": 500,
+      "invoice_number": "24877ef0-47fe-4cc7-8057-83fc0ee73416",
+      "reference_id": "asfawfaw",
+      "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
+      "properties": {
+        "redirect_url": "http://127.0.0.1:9099/"
+      },
+      "is_paid": null,
       "created_time": "2020-08-16T10:20:58.668Z",
       "updated_time": "2020-08-18T08:00:51.692Z"
     }

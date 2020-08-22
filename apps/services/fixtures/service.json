@@ -3,8 +3,26 @@
     "model": "services.service",
     "pk": 1,
     "fields": {
-      "name": "test service",
-      "secret_key": "test"
+      "name": "test",
+      "secret_key": "test",
+      "logo": "images.jpeg",
+      "color": "#2cd7da",
+      "gateways": [
+        1
+      ]
+    }
+  },
+   {
+    "model": "services.service",
+    "pk": 2,
+    "fields": {
+      "name": "test2",
+      "secret_key": "test2",
+      "logo": "images.jpeg",
+      "color": "#2cd7da",
+      "gateways": [
+        1
+      ]
     }
   }
 ]
