@@ -13,7 +13,7 @@ class GatewaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Gateway
-        fields = ('id', 'display_name', 'image_url')
+        fields = ('id', 'display_name', 'code', 'image_url')
 
     def get_image_url(self, obj):
         return obj.image.url
