@@ -1,17 +1,15 @@
-import json
 from urllib.parse import urlencode
 
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_text
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
 from .models import Order, Gateway
-from .services import SamanService, BazaarService
+from .services import SamanService
 
 
 def bazaar_token_view(request, *args, **kwargs):
@@ -19,18 +17,14 @@ def bazaar_token_view(request, *args, **kwargs):
 
 
 class GetBankView(View):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(GetBankView, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request):
+    def get(self, request, order_id):
         """
         check id and gateway and redirect user to related paying method
         """
         # check and validate parameters
-        if 'order' not in request.GET:
-            return HttpResponse("")
-        payment = get_object_or_404(Order, id=request.GET['order'])
+
+        payment = get_object_or_404(Order, id=order_id)
         if payment.is_paid is not None or payment.properties.get('redirect_url') is None:
             raise Http404('No order has been found !')
 
@@ -47,6 +41,10 @@ class GetBankView(View):
 
 
 class VerifyView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(VerifyView, self).dispatch(request, *args, **kwargs)
+
     @transaction.atomic
     def post(self, request):
         """
@@ -70,8 +68,9 @@ class VerifyView(View):
             return HttpResponse("")
         except Exception:
             return HttpResponse("")
-
-        if payment.is_paid is None and payment.gateway.code == Gateway.FUNCTION_SAMAN:
+        if payment.is_paid is not None:
+            raise Http404("No order has been found !")
+        if payment.gateway.code == Gateway.FUNCTION_SAMAN:
             purchase_verified = SamanService().verify_saman(
                 order=payment,
                 data=data
@@ -83,7 +82,8 @@ class VerifyView(View):
             'service_reference': payment.service_reference,
             'refNum': data.get("RefNum")
         }
-        return redirect(payment.properties.get('redirect_url') + '?' + urlencode(params))
+
+        return redirect(f"{payment.properties.get('redirect_url')}?{urlencode(params)}")
 
 
 def render_bank_page(

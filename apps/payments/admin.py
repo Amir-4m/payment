@@ -9,12 +9,14 @@ from .models import Gateway, Order
 @admin.register(Gateway)
 class GatewayModelAdmin(admin.ModelAdmin):
     list_display = ('title', 'is_enable', 'created_time', 'updated_time')
-    filter_horizontal = ('services',)
+    list_filter = ('is_enable',)
 
 
 @admin.register(Order)
 class OrderModelAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'service', 'gateway', 'price', 'invoice_number',
+        'invoice_number', 'service', 'gateway', 'price',
         'reference_id', 'is_paid', 'created_time', 'updated_time'
     )
+    list_filter = ('is_paid',)
+    search_fields = ('service_reference', 'service_reference', 'reference_id', 'invoice_number')

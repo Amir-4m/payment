@@ -15,7 +15,7 @@ from ..services import BazaarService
 from ...services.api.permissions import ServicePermission
 
 
-class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class GatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     queryset = Gateway.objects.all()
     serializer_class = GatewaySerializer
     authentication_classes = (ServiceAuthentication,)
@@ -23,7 +23,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
     def get_queryset(self):
         service = self.request.auth['service']
-        qs = super(ServiceGatewayViewSet, self).get_queryset()
+        qs = super(GatewayViewSet, self).get_queryset()
         return qs.filter(is_enable=True, services=service)
 
 
@@ -52,15 +52,16 @@ class PurchaseAPIView(viewsets.ViewSet):
 
     @action(methods=['post'], detail=False)
     def gateway(self, request, *args, **kwargs):
-        data = request.data
-        serializer = PurchaseSerializer(data=data, context={'request': request})
+        serializer = PurchaseSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        return Response({
-            'gateway_url': reverse('bank-gateway', request=request) + '?' + urlencode(
-                {
-                    'order': serializer.validated_data['order'].id
-                }
-            )}
+
+        return Response(
+            {
+                'gateway_url': reverse(
+                    'bank-gateway',
+                    request=request,
+                    kwargs={"order_id": serializer.validated_data['order'].id})
+            }
         )
 
     @action(methods=['post'], detail=False)
