@@ -138,14 +138,13 @@ class GetBankViewTestCase(TestCase):
     view_name = 'bank-gateway'
 
     def test_get_invalid_params(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'order_id': 5})
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'')
+        self.assertEqual(response.status_code, 404)
 
     def test_get_invalid_order(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'order_id': 55})
         params = {
             'order': 123,
         }
@@ -154,8 +153,8 @@ class GetBankViewTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_valid_params(self):
-        url = reverse(self.view_name)
         order = Order.objects.get(service_reference='1')
+        url = reverse(self.view_name, kwargs={'order_id': order.id})
         params = {
             'order': order.id,
         }
@@ -195,6 +194,18 @@ class VerifyViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
+
+    def test_post_order_paid_not_none(self):
+        url = reverse(self.view_name)
+        response = self.client.post(url + '?invoice_number=cd61b980-6c3c-42fb-877f-0614054f56b6')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_order_invalid_gateway(self):
+        url = reverse(self.view_name)
+        response = self.client.post(url + '?invoice_number=cd61b980-6c5c-42fb-877f-0614054f56b6')
+
+        self.assertEqual(response.status_code, 302)
 
     def test_post_invalid_uuid_form(self):
         url = reverse(self.view_name)
@@ -366,7 +377,7 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response_data,
-            {'gateway_url': 'http://testserver/payments/gateway-bank/' + f'?order={data["order"]}'}
+            {'gateway_url': f'http://testserver/payments/gateway-bank/{data["order"]}/'}
         )
 
     @patch('apps.payments.services.BazaarService.verify_purchase')
@@ -426,7 +437,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
     def test_validate_order_invalid_data(self):
         data = {
             'gateway': Gateway.objects.first(),
-            'order': Order.objects.last()
+            'order': Order.objects.get(pk=4)
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
 
@@ -449,7 +460,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
     def test_validate_invalid_data(self):
         data = {
             'gateway': Gateway.objects.first(),
-            'order': Order.objects.last()
+            'order': Order.objects.get(pk=4)
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
 
