@@ -12,8 +12,8 @@ from apps.services.models import Service
 
 
 class Gateway(models.Model):
-    FUNCTION_SAMAN = 1
-    FUNCTION_BAZAAR = 2
+    FUNCTION_SAMAN = "SAMAN"
+    FUNCTION_BAZAAR = "BAZAAR"
     GATEWAY_FUNCTIONS = (
         (FUNCTION_SAMAN, _('Saman')),
         (FUNCTION_BAZAAR, _('Bazaar')),
@@ -25,7 +25,7 @@ class Gateway(models.Model):
     title = models.CharField(_('title'), max_length=120)
     image = models.ImageField(upload_to='gateways/images', blank=True)
     properties = JSONField(_("properties"), default=dict)
-    code = models.PositiveSmallIntegerField(_("code"), choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
+    code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(default=True)
 
     def clean(self):

@@ -13,7 +13,7 @@
         "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
         "merchant_id": "1234"
       },
-      "code": 1,
+      "code": "SAMAN",
       "is_enable": true
     }
   },
@@ -32,7 +32,7 @@
         "redirect_uri": "http://127.0.0.1:9099/payments/bazaar-token/",
         "client_secret": "123"
       },
-      "code": 2,
+      "code": "BAZAAR",
       "is_enable": true
     }
   },
@@ -51,7 +51,7 @@
         "redirect_uri": "http://127.0.0.1:9099/payments/bazaar-token/",
         "client_secret": "123"
       },
-      "code": 3,
+      "code": "TEST",
       "is_enable": true
     }
   },
@@ -70,7 +70,7 @@
         "redirect_uri": "http://127.0.0.1:9099/payments/bazaar-token/",
         "client_secret": "123"
       },
-      "code": 2,
+      "code": "BAZAAR",
       "is_enable": true
     }
   },
@@ -88,7 +88,7 @@
         "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
         "merchant_id": "12424234"
       },
-      "code": 1,
+      "code": "SAMAN",
       "is_enable": true
     }
   },

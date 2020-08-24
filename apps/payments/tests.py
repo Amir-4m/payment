@@ -46,7 +46,7 @@ class GatewayAPIAPITestCase(PaymentBaseAPITestCase):
         response_data = json.loads(force_text(response.content))
 
         gw = self.service.gateways.first()
-        expected_data = {'id': gw.id, 'display_name': gw.display_name, 'image_url': gw.image.url}
+        expected_data = {'id': gw.id, 'display_name': gw.display_name, 'code': gw.code, 'image_url': gw.image.url}
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(expected_data, response_data)
