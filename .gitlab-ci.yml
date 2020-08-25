@@ -34,11 +34,7 @@ test:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - python manage.py check
-    - coverage erase
-    - coverage run --branch --parallel-mode run_tests.py
-    - coverage combine
-    - coverage html
+    - python manage.py test
   after_script:
     - rm $CI_PROJECT_DIR/.env
   cache:
@@ -52,10 +48,8 @@ test:
   tags:
     - django
 
-
 staging:
   stage: deploy
-  #  extends: .deploy
   before_script:
     - cd /var/www/$PROJECT_DIR/project/
     - source /var/www/$PROJECT_DIR/venv/bin/activate
@@ -77,7 +71,6 @@ staging:
 
 production:
   stage: deploy
-#  extends: .deploy
   before_script:
     - cd /var/www/$PROJECT_DIR/project/
     - source /var/www/$PROJECT_DIR/venv/bin/activate
