@@ -4,7 +4,7 @@ stages:
   - deploy
 
 variables:
-  PROJECT_DIR: "payment"
+  PROJECT_DIR: "payment_gateway"
 
 build:
   stage: build
