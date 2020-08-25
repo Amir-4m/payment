@@ -209,26 +209,26 @@ LOGGING = ({
     },
 })
 
-# if DEVEL is False:
-#     import sentry_sdk
-#     from sentry_sdk.integrations.django import DjangoIntegration
-#     from sentry_sdk.integrations.celery import CeleryIntegration
-#
-#     SENTRY_KEY = config('SENTRY_KEY')
-#     SENTRY_HOST = config('SENTRY_HOST')
-#     SENTRY_PROJECT_ID = config('SENTRY_PROJECT_ID')
-#     SENTRY_ENV = config('SENTRY_ENV')
-#
-#     sentry_sdk.init(
-#         dsn=f"https://{SENTRY_KEY}@{SENTRY_HOST}/{SENTRY_PROJECT_ID}",
-#         integrations=[DjangoIntegration(), CeleryIntegration()],
-#         default_integrations=False,
-#
-#         # If you wish to associate users to errors (assuming you are using
-#         # django.contrib.auth) you may enable sending PII data.
-#         send_default_pii=True,
-#
-#         # Custom settings
-#         debug=DEBUG,
-#         environment=SENTRY_ENV
-#     )
+if DEVEL is False:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    SENTRY_KEY = config('SENTRY_KEY')
+    SENTRY_HOST = config('SENTRY_HOST')
+    SENTRY_PROJECT_ID = config('SENTRY_PROJECT_ID')
+    SENTRY_ENV = config('SENTRY_ENV')
+
+    sentry_sdk.init(
+        dsn=f"https://{SENTRY_KEY}@{SENTRY_HOST}/{SENTRY_PROJECT_ID}",
+        integrations=[DjangoIntegration(), LoggingIntegration()],
+        default_integrations=False,
+
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True,
+
+        # Custom settings
+        debug=DEBUG,
+        environment=SENTRY_ENV
+    )
