@@ -44,9 +44,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class PurchaseSerializer(serializers.Serializer):
     gateway = serializers.PrimaryKeyRelatedField(queryset=Gateway.objects.filter(is_enable=True))
-    order = serializers.PrimaryKeyRelatedField(
-        queryset=Order.objects.filter(is_paid=None, properties__redirect_url__isnull=False)
-    )
+    order = serializers.CharField(max_length=40)
 
     def validate_gateway(self, obj):
         request = self.context['request']
@@ -56,14 +54,15 @@ class PurchaseSerializer(serializers.Serializer):
             )
         return obj
 
-    def validate_order(self, obj):
+    def validate_order(self, value):
         request = self.context['request']
-
-        if obj.service != request.auth['service']:
+        try:
+            order = Order.objects.get(service=request.auth['service'], service_reference=value)
+            return order
+        except Order.DoesNotExist:
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
-        return obj
 
     def validate(self, attrs):
         gateway = attrs['gateway']

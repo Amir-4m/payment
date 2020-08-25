@@ -81,9 +81,5 @@ class PurchaseAPIView(viewsets.ViewSet):
                 order=payment,
                 purchase_token=serializer.validated_data['purchase_token']
             )
-        params = {
-            'purchase_verified': purchase_verified,
-            'refrence_num': payment.service_reference
-        }
 
-        return Response(params)
+        return Response({'purchase_verified': purchase_verified})

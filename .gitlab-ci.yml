@@ -5,7 +5,6 @@ stages:
 
 variables:
   PROJECT_DIR: "payment"
-  PROJECT_ABR: "payment"
 
 build:
   stage: build
@@ -36,6 +35,10 @@ test:
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
     - python manage.py check
+    - coverage erase
+    - coverage run --branch --parallel-mode run_tests.py
+    - coverage combine
+    - coverage html
   after_script:
     - rm $CI_PROJECT_DIR/.env
   cache:
@@ -49,30 +52,10 @@ test:
   tags:
     - django
 
-.migrate:
-  stage: migrate
-  before_script:
-    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
-  script:
-    - source $CI_PROJECT_DIR/venv/bin/activate
-    - python manage.py makemigrations
-  after_script:
-    - rm $CI_PROJECT_DIR/.env
-  only:
-    changes:
-      - apps/*/models.py
-  tags:
-    - django
-    - staging
-
-#.deploy:
-#  before_script:
-#    - cd /var/www/$PROJECT_DIR/project/
-#    - source /var/www/$PROJECT_DIR/venv/bin/activate
 
 staging:
   stage: deploy
-#  extends: .deploy
+  #  extends: .deploy
   before_script:
     - cd /var/www/$PROJECT_DIR/project/
     - source /var/www/$PROJECT_DIR/venv/bin/activate
@@ -83,7 +66,6 @@ staging:
     - python manage.py migrate
     - python manage.py collectstatic --noinput
     - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
-    - supervisorctl restart $PROJECT_ABR-worker
   only:
     - develop
 #    - /^staging-.*$/
@@ -105,7 +87,6 @@ production:
     - python manage.py migrate
     - python manage.py collectstatic --noinput
     - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
-    - supervisorctl restart $PROJECT_ABR-worker
   only:
     - /^release-.*$/
   except:

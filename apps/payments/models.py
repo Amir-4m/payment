@@ -23,7 +23,7 @@ class Gateway(models.Model):
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     display_name = models.CharField(_('display name'), max_length=120)
     title = models.CharField(_('title'), max_length=120)
-    image = models.ImageField(upload_to='gateways/images', blank=True)
+    image = models.ImageField(upload_to='gateways/images')
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(default=True)
@@ -53,7 +53,7 @@ class Order(models.Model):
     reference_id = models.CharField(_("reference id"), max_length=100, db_index=True, blank=True)
     log = models.TextField(_("payment log"), blank=True)
     properties = JSONField(_("properties"), blank=True, default=dict)
-    is_paid = models.BooleanField(_("is paid"), null=True)
+    is_paid = models.NullBooleanField(_("is paid"))
 
     class Meta:
         unique_together = ('service', 'service_reference')
