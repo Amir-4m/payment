@@ -33,7 +33,9 @@ test:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - python manage.py test
+    - coverage run --branch --parallel-mode run_tests.py
+    - coverage combine
+
   after_script:
     - rm $CI_PROJECT_DIR/.env
   cache:
