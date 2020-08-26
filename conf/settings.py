@@ -78,22 +78,22 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE'),
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASS'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'HOST': config('DB_HOST', default=''),
+        'PORT': config('DB_PORT', default=''),
     },
 }
+
 CACHES = {
     'default': {
         'BACKEND': config('CACHE_BACKEND', default='django.core.cache.backends.locmem.LocMemCache'),
         'LOCATION': config('CACHE_HOST', default=''),
-        'KEY_PREFIX': 'INSTA_MONITORING',
+        'KEY_PREFIX': 'PAYMENT_GATEWAY',
     },
     'payments': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
@@ -119,29 +119,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+"""
 CELERY_BROKER_URL = 'amqp://%(USER)s:%(PASS)s@%(HOST)s' % {
     'USER': config('CELERY_USER'),
     'PASS': config('CELERY_PASS'),
     'HOST': config('CELERY_HOST'),
 }
+"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Asia/Tehran'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
+USE_I18N = False
+USE_L10N = False
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
-
 STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = '/static/'
 
@@ -153,7 +149,6 @@ LOCALE_PATHS = [
 ]
 
 LOG_DIR = BASE_DIR / 'logs'
-
 LOGGING = ({
     'version': 1,
     'disable_existing_loggers': False,
