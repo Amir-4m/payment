@@ -393,7 +393,7 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response_data,
-            {'purchase_verified': False, 'refrence_num': '2'}
+            {'purchase_verified': False}
         )
         mock_method.assert_called_once_with(
             order=Order.objects.get(id=data['order']),
@@ -426,18 +426,19 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
         )
 
     def test_validate_order(self):
+        order = Order.objects.first()
         data = {
             'gateway': Gateway.objects.first(),
-            'order': Order.objects.first()
+            'order': order.service_reference
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
 
-        self.assertEqual(serializer.validate_order(data['order']), data['order'])
+        self.assertEqual(serializer.validate_order(data['order']), order)
 
     def test_validate_order_invalid_data(self):
         data = {
             'gateway': Gateway.objects.first(),
-            'order': Order.objects.get(pk=4)
+            'order': Order.objects.get(pk=4).service_reference
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
 
@@ -445,7 +446,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
             RestValidationError,
             'order and service does not match!',
             serializer.validate_order,
-            obj=data['order']
+            value=data['order']
         )
 
     def test_validate(self):
