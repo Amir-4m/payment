@@ -148,6 +148,10 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
 
+FIXTURE_DIRS = (
+    BASE_DIR / 'fixtures',
+)
+
 LOG_DIR = BASE_DIR / 'logs'
 LOGGING = ({
     'version': 1,
