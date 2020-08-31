@@ -33,8 +33,16 @@ test:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - coverage run --branch --parallel-mode run_tests.py
+    - coverage run --branch --parallel-mode manage.py test
     - coverage combine
+    - coverage html
+    - coverage report
+  coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
+  artifacts:
+    paths:
+      - htmlcov
+      - docs/_build
+    expire_in: 5 days
 
   after_script:
     - rm $CI_PROJECT_DIR/.env
@@ -63,9 +71,9 @@ staging:
     - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
   only:
     - develop
-#    - /^staging-.*$/
-#  except:
-#    - branches
+  #    - /^staging-.*$/
+  #  except:
+  #    - branches
   tags:
     - django
     - staging
