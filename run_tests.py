@@ -15,7 +15,7 @@ def main(*test_args):
 
     test_runner_class = get_runner(settings)
     test_runner = test_runner_class()
-    failures = test_runner.run_tests(test_args)
+    failures = test_runner.run_tests(test_args, interactive=False)
     sys.exit(bool(failures))
 
 
