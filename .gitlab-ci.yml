@@ -33,7 +33,7 @@ test:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - coverage run --branch --parallel-mode manage.py test
+    - coverage run --branch --parallel-mode manage.py test --noinput
     - coverage combine
     - coverage html
     - coverage report
