@@ -38,12 +38,11 @@ test:
     - coverage run manage.py test
     - coverage html
     - coverage report
-  coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
+  coverage: "^TOTAL.+?(\d+\%)$"
   artifacts:
     paths:
       - htmlcov
       - docs/_build
-    expire_in: 5 days
 
   after_script:
     - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
