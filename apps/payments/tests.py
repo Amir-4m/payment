@@ -23,7 +23,7 @@ from apps.payments.models import Gateway, Order
 from apps.services.models import Service
 
 
-class PaymentBaseAPITestCase(APITestCase):
+class PaymentBaseAPITestCase(TestCase):
     fixtures = ['payment', 'service']
 
     def setUp(self):
