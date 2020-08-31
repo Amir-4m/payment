@@ -33,8 +33,8 @@ test:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - coverage run --branch --parallel-mode manage.py test --keepdb
-    - coverage combine
+    - python manage.py makemigrations
+    - coverage run manage.py test
     - coverage html
     - coverage report
   coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
@@ -45,6 +45,7 @@ test:
     expire_in: 5 days
 
   after_script:
+    - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
     - rm $CI_PROJECT_DIR/.env
   cache:
     key: ${CI_COMMIT_REF_SLUG}
