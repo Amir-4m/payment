@@ -3,6 +3,7 @@ source = .
 branch = true
 omit = */migrations/*, docs/*, run_tests.py, manage.py, .eggs/*, conf/*, */services.py, */authentications.py, */apps.py
 
+
 [report]
 show_missing = true
 exclude_lines =
