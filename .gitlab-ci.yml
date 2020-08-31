@@ -32,8 +32,12 @@ test:
   before_script:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
     - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/
+    - cat /var/www/$PROJECT_DIR/project/.coveragerc
+    - cat $CI_PROJECT_DIR/.coveragerc
+
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
+    - cat $CI_PROJECT_DIR/.coveragerc
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
@@ -42,7 +46,6 @@ test:
   artifacts:
     paths:
       - htmlcov
-      - docs/_build
 
   after_script:
     - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
