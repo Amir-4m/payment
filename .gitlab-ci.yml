@@ -5,6 +5,7 @@ stages:
 
 variables:
   PROJECT_DIR: "payment_gateway"
+  $CI_PROJECT_DIR: $CI_PROJECT_DIR/project
 
 build:
   stage: build
@@ -36,7 +37,6 @@ test:
 
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
-    - cat $CI_PROJECT_DIR/.coveragerc
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
