@@ -5,7 +5,6 @@ stages:
 
 variables:
   PROJECT_DIR: "payment_gateway"
-  $CI_PROJECT_DIR: $CI_PROJECT_DIR/project
 
 build:
   stage: build
@@ -32,8 +31,8 @@ test:
   stage: test
 
   before_script:
-    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
-    - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/
+    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/project
+    - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/project
 
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
@@ -48,8 +47,8 @@ test:
       - htmlcov
 
   after_script:
-    - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
-    - rm $CI_PROJECT_DIR/.env
+    - rm $CI_PROJECT_DIR/project/apps/*/migrations/0*.py
+    - rm $CI_PROJECT_DIR/project/.env
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
