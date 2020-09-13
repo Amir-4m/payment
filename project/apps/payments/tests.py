@@ -18,9 +18,9 @@ from django.core.exceptions import ValidationError
 from rest_framework.test import APITestCase, APIClient
 from mock import patch
 
-from project.apps.payments.api import OrderSerializer, PurchaseSerializer, VerifySerializer
-from project.apps.payments.models import Gateway, Order
-from project.apps.services.models import Service
+from apps.payments.api.serializers import OrderSerializer, PurchaseSerializer, VerifySerializer
+from apps.payments.models import Gateway, Order
+from apps.services.models import Service
 
 
 class PaymentBaseAPITestCase(APITestCase):
