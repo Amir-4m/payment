@@ -106,4 +106,4 @@ def render_bank_page(
         "amount": amount * 10,
         "extra_data": kwargs,
     }
-    return render(request, 'payments/templates/payments/pay.html', context=render_context)
+    return render(request, 'payments/pay.html', context=render_context)
