@@ -31,12 +31,10 @@ test:
   stage: test
 
   before_script:
-    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/project
-    - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/project
-    - cd $CI_PROJECT_DIR/project
+    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
+    - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/
 
   script:
-    - ls
     - source $CI_PROJECT_DIR/venv/bin/activate
     - python manage.py makemigrations
     - coverage run manage.py test
@@ -49,9 +47,8 @@ test:
       - htmlcov
 
   after_script:
-    - ls
-    - rm $CI_PROJECT_DIR/project/apps/*/migrations/0*.py
-    - rm $CI_PROJECT_DIR/project/.env
+    - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
+    - rm $CI_PROJECT_DIR/.env
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -69,7 +66,6 @@ staging:
     - cd /var/www/$PROJECT_DIR/project/
     - source /var/www/$PROJECT_DIR/venv/bin/activate
   script:
-    - ls
     - git pull
     - pip install -r requirements.txt
     - python manage.py makemigrations
