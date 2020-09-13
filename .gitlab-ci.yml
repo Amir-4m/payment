@@ -69,6 +69,7 @@ staging:
     - cd /var/www/$PROJECT_DIR/project/
     - source /var/www/$PROJECT_DIR/venv/bin/activate
   script:
+    - ls
     - git pull
     - pip install -r requirements.txt
     - python manage.py makemigrations
