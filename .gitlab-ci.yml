@@ -50,7 +50,6 @@ test:
 
   after_script:
     - ls
-    -
     - rm $CI_PROJECT_DIR/project/apps/*/migrations/0*.py
     - rm $CI_PROJECT_DIR/project/.env
   cache:
