@@ -36,6 +36,7 @@ test:
 
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
+    - cat $CI_PROJECT_DIR/.coveragerc
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
@@ -45,6 +46,7 @@ test:
   artifacts:
     paths:
       - htmlcov
+
   after_script:
     - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
     - rm $CI_PROJECT_DIR/.env

@@ -1,5 +1,3 @@
-from urllib.parse import urlencode
-
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins
@@ -7,9 +5,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from apps.services.api.authentications import ServiceAuthentication
 from ..models import Gateway, Order
 from .serializers import GatewaySerializer, OrderSerializer, PurchaseSerializer, VerifySerializer
-from apps.services.api.authentications import ServiceAuthentication
 from ..pagination import OrderPagination
 from ..services import BazaarService
 from ...services.api.permissions import ServicePermission
