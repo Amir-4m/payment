@@ -46,7 +46,6 @@ test:
   artifacts:
     paths:
       - htmlcov
-
   after_script:
     - rm $CI_PROJECT_DIR/apps/*/migrations/0*.py
     - rm $CI_PROJECT_DIR/.env
