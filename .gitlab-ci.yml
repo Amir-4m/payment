@@ -33,7 +33,6 @@ test:
   before_script:
     - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
     - cp /var/www/$PROJECT_DIR/project/.coveragerc $CI_PROJECT_DIR/
-
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
     - python manage.py makemigrations
