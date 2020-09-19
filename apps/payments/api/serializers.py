@@ -80,22 +80,21 @@ class PurchaseSerializer(serializers.Serializer):
 
 class VerifySerializer(serializers.Serializer):
     purchase_token = serializers.CharField(max_length=100)
-    order = serializers.PrimaryKeyRelatedField(
-        queryset=Order.objects.filter(is_paid=None)
-    )
+    order = serializers.CharField(max_length=40)
 
-    def validate_order(self, obj):
+    def validate_order(self, value):
         request = self.context['request']
-
-        if obj.service != request.auth['service']:
+        try:
+            order = Order.objects.get(service=request.auth['service'], service_reference=value, is_paid=None)
+        except Order.DoesNotExist:
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
-        if obj.gateway.code != Gateway.FUNCTION_BAZAAR:
+        if order.gateway.code != Gateway.FUNCTION_BAZAAR:
             raise ValidationError(
                 detail={'detail': _("invalid gateway!")}
             )
-        return obj
+        return order
 
     def create(self, validated_data):
         raise NotImplementedError('must be implemented')

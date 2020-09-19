@@ -477,16 +477,16 @@ class VerifySerializerTestCase(PaymentBaseAPITestCase):
     def test_validate_order(self):
         data = {
             'purchase_token': self.id(),
-            'order': Order.objects.get(id=2)
+            'order': Order.objects.get(id=2).service_reference
         }
         serializer = VerifySerializer(data=data, context={'request': self.request})
 
-        self.assertEqual(serializer.validate_order(data['order']), data['order'])
+        self.assertEqual(serializer.validate_order(data['order']), Order.objects.get(id=2))
 
     def test_validate_order_invalid_service(self):
         data = {
             'purchase_token': self.id(),
-            'order': Order.objects.get(id=4)
+            'order': Order.objects.get(id=4).service_reference
         }
         serializer = VerifySerializer(data=data, context={'request': self.request})
 
@@ -494,13 +494,13 @@ class VerifySerializerTestCase(PaymentBaseAPITestCase):
             RestValidationError,
             'order and service does not match!',
             serializer.validate_order,
-            obj=data['order']
+            value=data['order']
         )
 
     def test_validate_order_invalid_gateway(self):
         data = {
             'purchase_token': self.id(),
-            'order': Order.objects.first()
+            'order': Order.objects.first().service_reference
         }
         serializer = VerifySerializer(data=data, context={'request': self.request})
 
@@ -508,5 +508,5 @@ class VerifySerializerTestCase(PaymentBaseAPITestCase):
             RestValidationError,
             'invalid gateway!',
             serializer.validate_order,
-            obj=data['order']
+            value=data['order']
         )

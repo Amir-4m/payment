@@ -1,5 +1,7 @@
 from django.db import transaction
+from django.utils.decorators import method_decorator
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,10 +12,15 @@ from ..models import Gateway, Order
 from .serializers import GatewaySerializer, OrderSerializer, PurchaseSerializer, VerifySerializer
 from ..pagination import OrderPagination
 from ..services import BazaarService
+from ..swagger_schemas import ORDER_POST_DOCS, PURCHASE_GATEWAY_DOCS, PURCHASE_VERIFY_DOCS_RESPONSE, \
+    PURCHASE_GATEWAY_DOCS_RESPONSE
 from ...services.api.permissions import ServicePermission
 
 
 class GatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    """
+    Shows a list of available gateways for the specific service.
+    """
     queryset = Gateway.objects.all()
     serializer_class = GatewaySerializer
     authentication_classes = (ServiceAuthentication,)
@@ -25,6 +32,14 @@ class GatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         return qs.filter(is_enable=True, services=service)
 
 
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    operation_description="Get a list of submitted orders by service.",
+    responses={"200": 'Successful'}
+))
+@method_decorator(name='create', decorator=swagger_auto_schema(
+    operation_description="Create a order for the service.",
+    request_body=ORDER_POST_DOCS
+))
 class OrderViewSet(
     viewsets.GenericViewSet,
     mixins.CreateModelMixin,
@@ -48,6 +63,12 @@ class PurchaseAPIView(viewsets.ViewSet):
     authentication_classes = (ServiceAuthentication,)
     permission_classes = (ServicePermission,)
 
+    @method_decorator(name='gateway', decorator=swagger_auto_schema(
+        operation_description="Return bank gateway url for the requested order.",
+        request_body=PURCHASE_GATEWAY_DOCS,
+        responses={200: PURCHASE_GATEWAY_DOCS_RESPONSE}
+
+    ))
     @action(methods=['post'], detail=False)
     def gateway(self, request, *args, **kwargs):
         serializer = PurchaseSerializer(data=request.data, context={'request': request})
@@ -62,6 +83,11 @@ class PurchaseAPIView(viewsets.ViewSet):
             }
         )
 
+    @method_decorator(name='verify', decorator=swagger_auto_schema(
+        operation_description="Verify payment status of the requested order and return its status. (only PSP gateways such as bazaar, etc ...)",
+        request_body=PURCHASE_GATEWAY_DOCS,
+        responses={200: PURCHASE_VERIFY_DOCS_RESPONSE}
+    ))
     @action(methods=['post'], detail=False)
     def verify(self, request, *args, **kwargs):
         data = request.data

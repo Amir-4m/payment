@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.services',
     'colorful',
+    'drf_yasg',
 
     'django.contrib.admin',
     'django.contrib.auth',
