@@ -38,7 +38,7 @@ class PaymentBaseAPITestCase(APITestCase):
         logging.disable(logging.NOTSET)
 
 
-class GatewayAPIAPITestCase(PaymentBaseAPITestCase):
+class GatewayAPITestCase(PaymentBaseAPITestCase):
 
     def test_get_gateway(self):
         url = reverse('gateway-list')
