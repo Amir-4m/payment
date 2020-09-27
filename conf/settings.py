@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.services',
     'colorful',
     'drf_yasg',
+    'rest_framework',
 
     'django.contrib.admin',
     'django.contrib.auth',
