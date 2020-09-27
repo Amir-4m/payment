@@ -6,15 +6,18 @@ from rest_framework.exceptions import ValidationError
 from ..models import Gateway, Order
 
 
-class GatewaySerializer(serializers.ModelSerializer):
+class ServiceGatewaySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    display_name = serializers.ReadOnlyField(source='gateway.display_name')
+    code = serializers.ReadOnlyField(source='gateway.code')
 
     class Meta:
         model = Gateway
         fields = ('id', 'display_name', 'code', 'image_url')
 
     def get_image_url(self, obj):
-        return obj.image.url
+        request = self.context['request']
+        return request.build_absolute_uri(obj.image.url)
 
 
 class OrderSerializer(serializers.ModelSerializer):

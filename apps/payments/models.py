@@ -22,10 +22,9 @@ class Gateway(models.Model):
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     display_name = models.CharField(_('display name'), max_length=120)
-    title = models.CharField(_('title'), max_length=120)
-    image = models.ImageField(upload_to='gateways/images')
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
+    services = models.ManyToManyField('services.Service', related_name='gateways', through='ServiceGateway')
     is_enable = models.BooleanField(default=True)
 
     def clean(self):
@@ -40,6 +39,22 @@ class Gateway(models.Model):
             for param in bank_params:
                 if param not in self.properties:
                     raise ValidationError(f"{param} should be provided in gateway properties!")
+
+    def __str__(self):
+        return self.display_name
+
+
+class ServiceGateway(models.Model):
+    created_time = models.DateTimeField(_("created time"), auto_now_add=True)
+    updated_time = models.DateTimeField(_("updated time"), auto_now=True)
+    title = models.CharField(_('title'), max_length=120)
+    image = models.ImageField(upload_to='gateways/images')
+    service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
+    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE)
+    is_enable = models.BooleanField(_('is enable'), default=True)
+
+    class Meta:
+        unique_together = ('service', 'gateway')
 
 
 class Order(models.Model):

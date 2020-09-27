@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from apps.services.api.authentications import ServiceAuthentication
-from ..models import Gateway, Order
-from .serializers import GatewaySerializer, OrderSerializer, PurchaseSerializer, VerifySerializer
+from ..models import Gateway, Order, ServiceGateway
+from .serializers import ServiceGatewaySerializer, OrderSerializer, PurchaseSerializer, VerifySerializer
 from ..pagination import OrderPagination
 from ..services import BazaarService
 from ..swagger_schemas import ORDER_POST_DOCS, PURCHASE_GATEWAY_DOCS, PURCHASE_VERIFY_DOCS_RESPONSE, \
@@ -17,19 +17,19 @@ from ..swagger_schemas import ORDER_POST_DOCS, PURCHASE_GATEWAY_DOCS, PURCHASE_V
 from ...services.api.permissions import ServicePermission
 
 
-class GatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     """
     Shows a list of available gateways for the specific service.
     """
-    queryset = Gateway.objects.all()
-    serializer_class = GatewaySerializer
+    queryset = ServiceGateway.objects.all()
+    serializer_class = ServiceGatewaySerializer
     authentication_classes = (ServiceAuthentication,)
     permission_classes = (ServicePermission,)
 
     def get_queryset(self):
         service = self.request.auth['service']
-        qs = super(GatewayViewSet, self).get_queryset()
-        return qs.filter(is_enable=True, services=service)
+        qs = super(ServiceGatewayViewSet, self).get_queryset()
+        return qs.filter(service=service, is_enable=True, gateway__is_enable=True)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(

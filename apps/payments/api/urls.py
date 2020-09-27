@@ -1,12 +1,12 @@
 from rest_framework import routers
 
-from .views import GatewayViewSet, OrderViewSet, PurchaseAPIView
+from .views import ServiceGatewayViewSet, OrderViewSet, PurchaseAPIView
 
 urlpatterns = [
 ]
 
 router = routers.DefaultRouter()
-router.register('gateways', GatewayViewSet)
+router.register('gateways', ServiceGatewayViewSet)
 router.register('orders', OrderViewSet)
 router.register('purchase', PurchaseAPIView, basename='purchase')
 

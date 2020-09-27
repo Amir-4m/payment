@@ -41,23 +41,38 @@ class PaymentBaseAPITestCase(APITestCase):
 class GatewayAPITestCase(PaymentBaseAPITestCase):
 
     def test_get_gateway(self):
-        url = reverse('gateway-list')
+        url = reverse('servicegateway-list')
         response = self.client.get(url, format='application/json')
         response_data = json.loads(force_text(response.content))
 
-        gw = self.service.gateways.first()
-        expected_data = {'id': gw.id, 'display_name': gw.display_name, 'code': gw.code, 'image_url': gw.image.url}
+        gw = self.service.service_gateways.first()
+        expected_data = {
+            'id': gw.id,
+            'display_name': gw.gateway.display_name,
+            'code': gw.gateway.code,
+            'image_url': 'http://testserver' + gw.image.url
+        }
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(expected_data, response_data)
 
 
 class GatewayModelAPITestCase(PaymentBaseAPITestCase):
+    def test_gateway_str(self):
+        instance = Gateway(
+            display_name='test',
+            code=Gateway.FUNCTION_SAMAN,
+            properties={
+                "verify_url": "test.com",
+                "gateway_url": "test.com/verify/",
+                "merchant_id": "1234"
+            }
+        )
+        self.assertEqual(instance.__str__(), instance.display_name)
 
     def test_gateway_bank_properties(self):
         instance = Gateway(
             display_name='test',
-            title='test',
             code=Gateway.FUNCTION_SAMAN,
             properties={
                 "verify_url": "test.com",
@@ -71,7 +86,6 @@ class GatewayModelAPITestCase(PaymentBaseAPITestCase):
     def test_gateway_bank_invalid_properties(self):
         instance = Gateway(
             display_name='test',
-            title='test',
             code=Gateway.FUNCTION_SAMAN,
             properties={
                 "not": "test.com",
@@ -90,7 +104,6 @@ class GatewayModelAPITestCase(PaymentBaseAPITestCase):
     def test_gateway_psp__properties(self):
         instance = Gateway(
             display_name='test',
-            title='test',
             code=Gateway.FUNCTION_BAZAAR,
             properties={
                 "auth_code": "test.com",
@@ -105,7 +118,6 @@ class GatewayModelAPITestCase(PaymentBaseAPITestCase):
     def test_gateway_psp_invalid_properties(self):
         instance = Gateway(
             display_name='test',
-            title='test',
             code=Gateway.FUNCTION_BAZAAR,
             properties={
                 "not": "test.com",

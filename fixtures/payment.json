@@ -6,8 +6,6 @@
       "created_time": "2020-08-16T07:57:37.769Z",
       "updated_time": "2020-08-18T09:51:02.468Z",
       "display_name": "saman",
-      "title": "saaman",
-      "image": "gateways/images/ch.jpeg",
       "properties": {
         "verify_url": "https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL",
         "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
@@ -24,8 +22,6 @@
       "created_time": "2020-08-18T07:23:35.259Z",
       "updated_time": "2020-08-18T07:45:13.492Z",
       "display_name": "bazaar",
-      "title": "bazaar",
-      "image": "gateways/images/ch_39Tq7C1.jpeg",
       "properties": {
         "auth_code": "123",
         "client_id": "123",
@@ -43,8 +39,6 @@
       "created_time": "2020-08-18T07:23:35.259Z",
       "updated_time": "2020-08-18T07:45:13.492Z",
       "display_name": "bazaar",
-      "title": "bazaar",
-      "image": "gateways/images/ch_39Tq7C1.jpeg",
       "properties": {
         "auth_code": "123",
         "client_id": "123",
@@ -62,8 +56,6 @@
       "created_time": "2020-08-18T07:23:35.259Z",
       "updated_time": "2020-08-18T07:45:13.492Z",
       "display_name": "bazaar",
-      "title": "bazaar",
-      "image": "gateways/images/ch_39Tq7C1.jpeg",
       "properties": {
         "auth_code": "123",
         "client_id": "123",
@@ -81,8 +73,6 @@
       "created_time": "2020-08-16T07:57:37.769Z",
       "updated_time": "2020-08-18T09:51:02.468Z",
       "display_name": "saman",
-      "title": "saaman2",
-      "image": "gateways/images/ch.jpeg",
       "properties": {
         "verify_url": "https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL",
         "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
@@ -90,6 +80,32 @@
       },
       "code": "SAMAN",
       "is_enable": true
+    }
+  },
+  {
+    "model": "payments.servicegateway",
+    "pk": 1,
+    "fields": {
+      "created_time": "2020-08-16T07:57:37.769Z",
+      "updated_time": "2020-08-18T09:51:02.468Z",
+      "title": "saaman",
+      "image": "gateways/images/ch.jpeg",
+      "is_enable": true,
+      "service": 1,
+      "gateway": 1
+    }
+  },
+  {
+    "model": "payments.servicegateway",
+    "pk": 2,
+    "fields": {
+      "created_time": "2020-08-16T07:57:37.769Z",
+      "updated_time": "2020-08-18T09:51:02.468Z",
+      "title": "saaman",
+      "image": "gateways/images/ch.jpeg",
+      "is_enable": true,
+      "service": 2,
+      "gateway": 1
     }
   },
   {

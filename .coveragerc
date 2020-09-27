@@ -1,7 +1,7 @@
 [run]
 source = .
 branch = true
-omit = */migrations/*, docs/*, run_tests.py, manage.py, .eggs/*, conf/*, */services.py, */authentications.py, */apps.py , */venv/*, */admin.py, */utils.py
+omit = */migrations/*, docs/*, run_tests.py, manage.py, .eggs/*, conf/*, */services.py, */authentications.py, */apps.py , */venv/*, */admin.py, */utils.py,
 
 
 [report]

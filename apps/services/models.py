@@ -13,5 +13,9 @@ class Service(models.Model):
     secret_key = models.CharField(_('secret key'), max_length=64, default=random_secret_generator, unique=True)
     logo = models.ImageField(_('logo'), upload_to='services/images')
     color = RGBColorField(_('color'), blank=True)
-    gateways = models.ManyToManyField('payments.Gateway', related_name='services')
     is_enable = models.BooleanField(_('is enable'), default=True)
+
+    def __str__(self):
+        return self.name
+
+
