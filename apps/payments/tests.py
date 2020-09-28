@@ -370,7 +370,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
         self.assertRaisesMessage(
             RestValidationError,
-            'Order with this service and service reference  already exists!',
+            'Order with this service and service reference already exists!',
             serializer.validate,
             data
         )
