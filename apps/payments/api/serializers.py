@@ -7,6 +7,7 @@ from ..models import Gateway, Order
 
 
 class ServiceGatewaySerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='gateway.id')
     image_url = serializers.SerializerMethodField()
     display_name = serializers.ReadOnlyField(source='gateway.display_name')
     code = serializers.ReadOnlyField(source='gateway.code')
