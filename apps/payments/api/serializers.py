@@ -24,7 +24,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'gateway', 'price', 'service_reference', 'is_paid'
+            'gateway', 'price', 'service_reference', 'is_paid', 'properties'
         )
 
     def validate_gateway(self, obj):
@@ -38,7 +38,7 @@ class OrderSerializer(serializers.ModelSerializer):
         service_reference = attrs.get('service_reference')
         if Order.objects.filter(service=request.auth['service'], service_reference=service_reference).exists():
             raise ValidationError(
-                detail={'detail': _("Order with this service and service reference  already exists!")}
+                detail={'detail': _("Order with this service and service reference already exists!")}
             )
         return attrs
 
