@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+from datetime import datetime
 
 from django.db import transaction
 from django.http import HttpResponse, Http404
@@ -30,10 +31,13 @@ class GetBankView(View):
 
         return render_bank_page(
             request,
+            payment.gateway.code,
             payment.invoice_number,
             payment.gateway.properties.get('gateway_url'),
             payment.gateway.properties.get('merchant_id'),
             payment.price,
+            username=payment.gateway.properties.get('username'),
+            password=payment.gateway.properties.get('password'),
             service_logo=payment.service.logo,
             service_color=payment.service.color,
             service_name=payment.service.name,
@@ -87,23 +91,49 @@ class VerifyView(View):
 
 
 def render_bank_page(
-        request, invoice_id, request_url,
-        merchant_id, amount, phone_number='',
+        request, gateway_code, invoice_id, request_url,
+        merchant_id, amount, phone_number='', username=None, password=None,
         service_logo=None, service_color=None, service_name=None, **kwargs
 ):
     """
     send parameters to a template ... template contain a form include these parameters
     this form automatically submit to bank url
     """
+
     render_context = {
         'service_logo': service_logo,
         'service_color': service_color,
         'service_name': service_name,
-        "invoice_id": invoice_id,
-        "request_url": request_url,
-        "merchant_id": merchant_id,
-        "redirect_url": request.build_absolute_uri(reverse('verify-payment')),
-        "amount": amount * 10,
-        "extra_data": kwargs,
+        'request_url': request_url,
     }
+    if gateway_code == "MELLAT":
+        render_context.update({
+            "form_data": {
+                "terminalId": merchant_id,
+                "userName": username,
+                "userPassword": password,
+                "callBackUrl": request.build_absolute_uri(reverse('verify-payment')),
+                "amount": amount * 10,
+                "orderId": invoice_id,
+                "localDate": datetime.now().strftime("%Y%m%d"),
+                "localTime": datetime.now().strftime("%H%M%S"),
+
+                "extra_data": kwargs,
+            },
+            'request_url': f"{request_url}?RefId={str(invoice_id)}",
+        })
+
+    elif gateway_code == "SAMAN":
+        render_context.update({
+            "form_data": {
+                "ResNum": invoice_id,
+                "request_url": request_url,
+                "MID": merchant_id,
+                "RedirectURL": request.build_absolute_uri(reverse('verify-payment')),
+                "Amount": amount * 10,
+                "CellNumber": phone_number,
+                "extra_data": kwargs,
+            }
+        })
+
     return render(request, 'payments/pay.html', context=render_context)

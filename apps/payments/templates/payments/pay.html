@@ -7,8 +7,9 @@
 <style>
 
     body {
-        background-color: {% if service_color %}{{ service_color }};{% else %} white;{% endif %}
-        direction: rtl;
+        background-color: {% if service_color %}{{ service_color }};
+    {% else %} white;
+    {% endif %} direction: rtl;
     }
 
     .payment-section {
@@ -30,12 +31,9 @@
 </div>
 <form style="display: none" name="hamipay" id="hamipay" action="{{ request_url }}" method="POST">
     <p>
-        <input type="hidden" name="MID" value="{{ merchant_id }}"/>
-        <input type="hidden" name="ResNum" value="{{ invoice_id }}"/>
-        <input type="hidden" name="Amount" value="{{ amount }}"/>
-        <input type="hidden" name="AdditionalData1" value="{{ additional_data1 }}"/>
-        <input type="hidden" name="RedirectURL" value="{{ redirect_url }}"/>
-        <input type="hidden" name="CellNumber" value="{{ phone_number }}"/>
+        {% for name, value in form_data.items %}
+            <input type="hidden" name="{{ name }}" value="{{ value }}"/>
+        {% endfor %}
         <input type="hidden" name="language" value="fa"/>
 
         {% for key,value in extra_data.items %}

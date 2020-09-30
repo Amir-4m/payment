@@ -14,9 +14,11 @@ from apps.services.models import Service
 class Gateway(models.Model):
     FUNCTION_SAMAN = "SAMAN"
     FUNCTION_BAZAAR = "BAZAAR"
+    FUNTCION_MELLAT = "MELLAT"
     GATEWAY_FUNCTIONS = (
         (FUNCTION_SAMAN, _('Saman')),
         (FUNCTION_BAZAAR, _('Bazaar')),
+        (FUNTCION_MELLAT, _('Mellat')),
     )
 
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)

@@ -112,3 +112,7 @@ class SamanService:
         order.reference_id = reference_id
         order.save()
         return purchase_verified
+
+
+class MellatService:
+    transport = Transport(cache=InMemoryCache())
