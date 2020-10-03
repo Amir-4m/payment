@@ -73,7 +73,12 @@ class PurchaseAPIView(viewsets.ViewSet):
     def gateway(self, request, *args, **kwargs):
         serializer = PurchaseSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-
+        gateway = serializer.validated_data['gateway']
+        order = serializer.validated_data['order']
+        order.gateway = gateway
+        order.save()
+        if order.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNTCION_MELLAT]:
+            return Response({'order': order.id, 'gateway': gateway.id})
         return Response(
             {
                 'gateway_url': reverse(

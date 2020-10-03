@@ -127,7 +127,6 @@ def render_bank_page(
         render_context.update({
             "form_data": {
                 "ResNum": invoice_id,
-                "request_url": request_url,
                 "MID": merchant_id,
                 "RedirectURL": request.build_absolute_uri(reverse('verify-payment')),
                 "Amount": amount * 10,

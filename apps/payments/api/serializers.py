@@ -22,11 +22,17 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    gateways = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = (
-            'gateway', 'price', 'service_reference', 'is_paid', 'properties'
+            'price', 'service_reference', 'is_paid', 'properties', 'gateways'
         )
+
+    def get_gateways(self, obj):
+        service = self.context['request'].auth['service']
+        return service.gateways.filter(is_enable=True)
 
     def validate_gateway(self, obj):
         service = self.context['request'].auth['service']
@@ -65,15 +71,6 @@ class PurchaseSerializer(serializers.Serializer):
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
-
-    def validate(self, attrs):
-        gateway = attrs['gateway']
-        order = attrs['order']
-        if order.gateway != gateway:
-            raise ValidationError(
-                detail={'detail': _("order and gateway does not match!")}
-            )
-        return attrs
 
     def create(self, validated_data):
         raise NotImplementedError('must be implemented')

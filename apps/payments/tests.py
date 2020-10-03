@@ -172,11 +172,10 @@ class GetBankViewTestCase(TestCase):
         }
 
         html = f"""
-        <input type="hidden" name="MID" value="{order.gateway.properties['merchant_id']}"/>
         <input type="hidden" name="ResNum" value="{order.invoice_number}"/>
-        <input type="hidden" name="Amount" value="{order.price * 10}"/>
-        <input type="hidden" name="AdditionalData1" value=""/>
+        <input type="hidden" name="MID" value="{order.gateway.properties['merchant_id']}"/>
         <input type="hidden" name="RedirectURL" value="http://testserver/payments/verify/"/>
+        <input type="hidden" name="Amount" value="{order.price * 10}"/>
         <input type="hidden" name="CellNumber" value=""/>
         <input type="hidden" name="language" value="fa"/>
         

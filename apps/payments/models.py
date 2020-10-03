@@ -63,7 +63,7 @@ class Order(models.Model):
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='orders')
-    gateway = models.ForeignKey(Gateway, on_delete=models.CASCADE, related_name='orders')
+    gateway = models.ForeignKey(Gateway, on_delete=models.CASCADE, related_name='orders', null=True)
     price = models.PositiveIntegerField(_('price'))
     invoice_number = models.UUIDField(_('invoice_number'), default=uuid.uuid4, unique=True, editable=False)
     service_reference = models.CharField(_("service reference"), max_length=100)
