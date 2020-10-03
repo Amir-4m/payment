@@ -32,7 +32,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_gateways(self, obj):
         service = self.context['request'].auth['service']
-        return service.gateways.filter(is_enable=True)
+        return ServiceGatewaySerializer(
+            service.service_gateways.filter(is_enable=True),
+            many=True,
+            context={'request': self.context['request']}).data
 
     def validate_gateway(self, obj):
         service = self.context['request'].auth['service']

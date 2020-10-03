@@ -183,7 +183,6 @@ class GetBankViewTestCase(TestCase):
         """
 
         response = self.client.get(url, data=params)
-
         self.assertEqual(response.status_code, 200)
         self.assertInHTML(html, response.content.decode())
 
@@ -263,7 +262,6 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(
             Order.objects.filter(
-                gateway=response_data['gateway'],
                 price=data['price'],
                 service=self.service,
                 service_reference='hello').exists()
@@ -468,20 +466,6 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
 
         self.assertEqual(serializer.validate(data), data)
-
-    def test_validate_invalid_data(self):
-        data = {
-            'gateway': Gateway.objects.first(),
-            'order': Order.objects.get(pk=4)
-        }
-        serializer = PurchaseSerializer(data=data, context={'request': self.request})
-
-        self.assertRaisesMessage(
-            RestValidationError,
-            'order and gateway does not match!',
-            serializer.validate,
-            data
-        )
 
 
 class VerifySerializerTestCase(PaymentBaseAPITestCase):

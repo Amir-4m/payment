@@ -103,7 +103,7 @@ class PurchaseAPIView(viewsets.ViewSet):
             payment = Order.objects.select_related(
                 'service',
                 'gateway'
-            ).select_for_update().get(
+            ).select_for_update(of=('self',)).get(
                 id=order.id
             )
             purchase_verified = BazaarService.verify_purchase(
