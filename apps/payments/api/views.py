@@ -75,16 +75,25 @@ class PurchaseAPIView(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         gateway = serializer.validated_data['gateway']
         order = serializer.validated_data['order']
-        order.gateway = gateway
-        order.save()
-        if order.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNTCION_MELLAT]:
-            return Response({'order': order.id, 'gateway': gateway.id})
+        with transaction.atomic():
+            payment = Order.objects.select_related(
+                'service',
+                'gateway'
+            ).select_for_update(of=('self',)).get(
+                id=order.id
+            )
+
+            payment.gateway = gateway
+            payment.save()
+
+        if payment.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNTCION_MELLAT]:
+            return Response({'order': payment.id, 'gateway': gateway.id})
         return Response(
             {
                 'gateway_url': reverse(
                     'bank-gateway',
                     request=request,
-                    kwargs={"order_id": serializer.validated_data['order'].id})
+                    kwargs={"order_id": payment.id})
             }
         )
 
