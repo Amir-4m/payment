@@ -20,6 +20,7 @@ from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework_swagger.views import get_swagger_view
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -37,7 +38,7 @@ urlpatterns = [
     path('adminf83c2a/', admin.site.urls),
     path('api/v1/', include('apps.urls_api')),
     path('payments/', include('apps.payments.urls')),
-    path('docs/', schema_view.with_ui('swagger')),
+    path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc-ui')
 
 ]
 

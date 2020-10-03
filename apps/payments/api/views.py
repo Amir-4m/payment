@@ -13,7 +13,7 @@ from .serializers import ServiceGatewaySerializer, OrderSerializer, PurchaseSeri
 from ..pagination import OrderPagination
 from ..services import BazaarService
 from ..swagger_schemas import ORDER_POST_DOCS, PURCHASE_GATEWAY_DOCS, PURCHASE_VERIFY_DOCS_RESPONSE, \
-    PURCHASE_GATEWAY_DOCS_RESPONSE
+    PURCHASE_GATEWAY_DOCS_RESPONSE, ORDER_POST_DOCS_RESPONSE
 from ...services.api.permissions import ServicePermission
 
 
@@ -38,7 +38,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 ))
 @method_decorator(name='create', decorator=swagger_auto_schema(
     operation_description="Create a order for the service.",
-    request_body=ORDER_POST_DOCS
+    request_body=ORDER_POST_DOCS, responses={201: ORDER_POST_DOCS_RESPONSE}
 ))
 class OrderViewSet(
     viewsets.GenericViewSet,

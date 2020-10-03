@@ -27,8 +27,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'price', 'service_reference', 'is_paid', 'properties', 'gateways'
+            'gateway', 'price', 'service_reference', 'is_paid', 'properties', 'gateways'
         )
+        read_only_fields = ('gateway',)
 
     def get_gateways(self, obj):
         service = self.context['request'].auth['service']

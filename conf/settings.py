@@ -127,7 +127,7 @@ CELERY_BROKER_URL = 'amqp://%(USER)s:%(PASS)s@%(HOST)s' % {
     'HOST': config('CELERY_HOST'),
 }
 """
-
+REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'}
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
