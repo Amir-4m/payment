@@ -1,8 +1,14 @@
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 
+from apps.payments.models import ServiceGateway
 from apps.services.models import Service
 from apps.services.utils import random_secret_generator
+
+
+class ServiceGatewayInline(admin.TabularInline):
+    model = ServiceGateway
+    extra = 1
 
 
 @admin.register(Service)
@@ -11,7 +17,7 @@ class ServiceModelAdmin(admin.ModelAdmin):
     filter_horizontal = ('gateways',)
     list_filter = ('is_enable',)
     readonly_fields = ('secret_key',)
-
+    inlines = (ServiceGatewayInline,)
     change_form_template = "services/admin/change-form.html"
 
     def response_change(self, request, obj):

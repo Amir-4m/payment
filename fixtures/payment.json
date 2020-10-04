@@ -109,6 +109,19 @@
     }
   },
   {
+    "model": "payments.servicegateway",
+    "pk": 3,
+    "fields": {
+      "created_time": "2020-08-16T07:57:37.769Z",
+      "updated_time": "2020-08-18T09:51:02.468Z",
+      "title": "bazaar",
+      "image": "gateways/images/ch.jpeg",
+      "is_enable": true,
+      "service": 1,
+      "gateway": 2
+    }
+  },
+  {
     "model": "payments.order",
     "pk": 1,
     "fields": {

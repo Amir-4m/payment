@@ -113,16 +113,16 @@ def render_bank_page(
         render_context.update({
             "form_data": {
                 "terminalId": merchant_id,
+                "RefId": str(invoice_id),
                 "userName": username,
                 "userPassword": password,
                 "callBackUrl": request.build_absolute_uri(reverse('verify-payment')),
                 "amount": amount * 10,
-                "orderId": invoice_id,
+                "orderId": 10,
                 "localDate": datetime.now().strftime("%Y%m%d"),
                 "localTime": datetime.now().strftime("%H%M%S"),
 
             },
-            'request_url': f"{request_url}?RefId={str(invoice_id)}",
         })
 
     elif gateway_code == "SAMAN":

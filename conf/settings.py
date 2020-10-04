@@ -201,7 +201,7 @@ LOGGING = ({
             'handlers': ['db_queries'],
             'propagate': False,
         },
-        'payments': {
+        'apps.payments': {
             'level': 'DEBUG',
             'handlers': ['file', 'console']
         },

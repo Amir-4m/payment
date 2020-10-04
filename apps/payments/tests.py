@@ -374,7 +374,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
 
 class PurchaseAPITestCase(PaymentBaseAPITestCase):
-    def test_gateway(self):
+    def test_gateway_bank(self):
         url = reverse('purchase-gateway')
         data = {
             'gateway': Gateway.objects.filter(services=self.service).first().id,
@@ -387,6 +387,21 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
         self.assertEqual(
             response_data,
             {'gateway_url': f'http://testserver/payments/gateway-bank/{data["order"]}/'}
+        )
+
+    def test_gateway_psp(self):
+        url = reverse('purchase-gateway')
+        data = {
+            'gateway': Gateway.objects.filter(services=self.service, id=2).first().id,
+            'order': Order.objects.get(id=2).id,
+        }
+        response = self.client.post(url, data=data, format='json')
+        response_data = json.loads(force_text(response.content))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response_data,
+            {'order': data['order'], 'gateway': data['gateway']}
         )
 
     @patch('apps.payments.services.BazaarService.verify_purchase')
