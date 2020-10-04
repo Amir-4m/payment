@@ -21,7 +21,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     """
     Shows a list of available gateways for the specific service.
     """
-    queryset = ServiceGateway.objects.all()
+    queryset = ServiceGateway.objects.select_related('gateway').all()
     serializer_class = ServiceGatewaySerializer
     authentication_classes = (ServiceAuthentication,)
     permission_classes = (ServicePermission,)
@@ -40,12 +40,10 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     operation_description="Create a order for the service.",
     request_body=ORDER_POST_DOCS, responses={201: ORDER_POST_DOCS_RESPONSE}
 ))
-class OrderViewSet(
-    viewsets.GenericViewSet,
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin
-):
+class OrderViewSet(viewsets.GenericViewSet,
+                   mixins.CreateModelMixin,
+                   mixins.ListModelMixin,
+                   mixins.RetrieveModelMixin):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['created_time', 'is_paid', 'service']
     pagination_class = OrderPagination
@@ -86,7 +84,7 @@ class PurchaseAPIView(viewsets.ViewSet):
             payment.gateway = gateway
             payment.save()
 
-        if payment.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNTCION_MELLAT]:
+        if payment.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNCTION_MELLAT]:
             return Response({'order': payment.id, 'gateway': gateway.id})
         return Response(
             {

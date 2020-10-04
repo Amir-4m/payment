@@ -104,6 +104,7 @@ class SamanService:
                 mid = order.gateway.properties.get('merchant_id')
                 client = zeep.Client(wsdl=wsdl, transport=self.transport)
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
+                logger.warning(f"result of verify purchase for order {order.id} is :{res}")
                 if int(res) == order.price * 10:
                     purchase_verified = True
             except Exception as e:
