@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>instafollow payment</title>
+</head>
+<style>
+
+    body {
+        background-color: {% if service_color %}{{ service_color }};
+    {% else %} white;
+    {% endif %} direction: rtl;
+    }
+
+    .payment-section {
+        text-align: center;
+        margin-top: 100px;
+    }
+
+    .service-logo {
+        width: 120px;
+        border-radius: 30px;
+    }
+</style>
+<body>
+<div class="payment-section">
+    <img class="service-logo" src="{{ service_logo.url }}" alt="service-logo">
+    <p>
+        در حال انتقال به درگاه پرداخت ...
+    </p>
+</div>
+<form style="display: none" name="hamipay" id="hamipay" action="{{ request_url }}" method="POST">
+    <p>
+        {% for name, value in form_data.items %}
+            <input type="hidden" name="{{ name }}" value="{{ value }}"/>
+        {% endfor %}
+        <input type="hidden" name="language" value="fa"/>
+
+        {% for key,value in extra_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}"/>
+        {% endfor %}
+    </p>
+    <p>
+        <input type="submit" id="pay_form" value="Submit"/>
+    </p>
+</form>
+
+</body>
+<script type="text/javascript">
+    document.getElementById('pay_form').click();
+</script>
+
+</html>
