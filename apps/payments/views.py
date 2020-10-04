@@ -26,7 +26,7 @@ class GetBankView(View):
         # check and validate parameters
 
         payment = get_object_or_404(Order, id=order_id)
-        if payment.is_paid is not None or payment.properties.get('redirect_url') is None:
+        if payment.is_paid is not None or payment.gateway is None or payment.properties.get('redirect_url') is None:
             raise Http404('No order has been found !')
 
         return render_bank_page(
@@ -59,6 +59,7 @@ class VerifyView(View):
 
         if not invoice_number:
             return HttpResponse("")
+
         # check and validate parameters
         try:
             payment = Order.objects.select_related(
@@ -67,13 +68,14 @@ class VerifyView(View):
             ).select_for_update(of=('self',)).get(
                 invoice_number=invoice_number
             )
-
         except Order.DoesNotExist:
             return HttpResponse("")
         except Exception:
             return HttpResponse("")
+
         if payment.is_paid is not None:
             raise Http404("No order has been found !")
+
         if payment.gateway.code == Gateway.FUNCTION_SAMAN:
             purchase_verified = SamanService().verify_saman(
                 order=payment,
@@ -81,6 +83,7 @@ class VerifyView(View):
             )
         else:
             purchase_verified = payment.is_paid
+
         params = {
             'purchase_verified': purchase_verified,
             'service_reference': payment.service_reference,

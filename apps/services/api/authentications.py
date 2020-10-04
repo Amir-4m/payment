@@ -19,14 +19,14 @@ class ServiceAuthentication(authentication.BaseAuthentication):
             return None
 
         if len(auth) == 1:
-
             msg = _('Invalid Authorization header. No credentials provided.')
             raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
 
+        elif len(auth) > 2:
             msg = _('Invalid Authorization header. Credentials string '
                     'should not contain spaces.')
             raise exceptions.AuthenticationFailed(msg)
+
         return smart_text(auth[1])
 
     def authenticate_header(self, request):

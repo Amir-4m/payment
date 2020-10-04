@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ..models import Gateway, Order
+from ..models import Gateway, Order, ServiceGateway
 
 
 class ServiceGatewaySerializer(serializers.ModelSerializer):
@@ -13,7 +13,7 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
     code = serializers.ReadOnlyField(source='gateway.code')
 
     class Meta:
-        model = Gateway
+        model = ServiceGateway
         fields = ('id', 'display_name', 'code', 'image_url')
 
     def get_image_url(self, obj):
