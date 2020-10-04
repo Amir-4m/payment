@@ -23,6 +23,6 @@ class OrderModelAdmin(admin.ModelAdmin):
 
 
 @admin.register(ServiceGateway)
-class ServiceModelAdmin(admin.ModelAdmin):
+class ServiceGatewayModelAdmin(admin.ModelAdmin):
     list_display = ('title', 'id', 'service', 'is_enable', 'created_time', 'updated_time')
     list_filter = ('is_enable',)
