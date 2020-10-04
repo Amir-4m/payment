@@ -65,7 +65,7 @@ class Order(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='orders')
     gateway = models.ForeignKey(Gateway, on_delete=models.CASCADE, related_name='orders', null=True)
     price = models.PositiveIntegerField(_('price'))
-    invoice_number = models.UUIDField(_('invoice_number'), default=uuid.uuid4, unique=True, editable=False)
+    transaction_id = models.UUIDField(_('transaction_id'), default=uuid.uuid4, unique=True, editable=False)
     service_reference = models.CharField(_("service reference"), max_length=100)
     reference_id = models.CharField(_("reference id"), max_length=100, db_index=True, blank=True)
     log = models.TextField(_("payment log"), blank=True)

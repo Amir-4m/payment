@@ -116,7 +116,7 @@
       "gateway": 1,
       "service_reference": 1,
       "price": 1000,
-      "invoice_number": "cd61b980-6c9c-42fb-877f-0614054f56b6",
+      "transaction_id": "cd61b980-6c9c-42fb-877f-0614054f56b6",
       "reference_id": "",
       "log": "",
       "properties": {
@@ -135,7 +135,7 @@
       "gateway": 2,
       "service_reference": 2,
       "price": 500,
-      "invoice_number": "21877ef0-47fe-4cc7-8057-83fc0ee73416",
+      "transaction_id": "21877ef0-47fe-4cc7-8057-83fc0ee73416",
       "reference_id": "asfawfaw",
       "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
       "properties": {
@@ -154,7 +154,7 @@
       "gateway": 3,
       "service_reference": 3,
       "price": 500,
-      "invoice_number": "21477ef0-47fe-4cc7-8057-83fc0ee73416",
+      "transaction_id": "21477ef0-47fe-4cc7-8057-83fc0ee73416",
       "reference_id": "asfawfaw",
       "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
       "properties": {
@@ -173,7 +173,7 @@
       "gateway": 2,
       "service_reference": 5,
       "price": 500,
-      "invoice_number": "24877ef0-47fe-4cc7-8057-83fc0ee73416",
+      "transaction_id": "24877ef0-47fe-4cc7-8057-83fc0ee73416",
       "reference_id": "asfawfaw",
       "log": "{'error': 'invalid_value', 'error_description': 'Package name is invalid.'}",
       "properties": {
@@ -192,7 +192,7 @@
       "gateway": 1,
       "service_reference": 6,
       "price": 1000,
-      "invoice_number": "cd61b980-6c3c-42fb-877f-0614054f56b6",
+      "transaction_id": "cd61b980-6c3c-42fb-877f-0614054f56b6",
       "reference_id": "",
       "log": "",
       "properties": {
@@ -211,7 +211,7 @@
       "gateway": 3,
       "service_reference": 7,
       "price": 1000,
-      "invoice_number": "cd61b980-6c5c-42fb-877f-0614054f56b6",
+      "transaction_id": "cd61b980-6c5c-42fb-877f-0614054f56b6",
       "reference_id": "",
       "log": "",
       "properties": {

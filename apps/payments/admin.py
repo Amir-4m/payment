@@ -15,11 +15,11 @@ class GatewayModelAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderModelAdmin(admin.ModelAdmin):
     list_display = (
-        'invoice_number', 'service', 'gateway', 'price',
+        'transaction_id', 'service', 'gateway', 'price',
         'reference_id', 'is_paid', 'created_time', 'updated_time'
     )
     list_filter = ('is_paid',)
-    search_fields = ('service_reference', 'service_reference', 'reference_id', 'invoice_number')
+    search_fields = ('service_reference', 'service_reference', 'reference_id', 'transaction_id')
 
 
 @admin.register(ServiceGateway)
