@@ -13,7 +13,7 @@ from .serializers import ServiceGatewaySerializer, OrderSerializer, PurchaseSeri
 from ..pagination import OrderPagination
 from ..services import BazaarService
 from ..swagger_schemas import ORDER_POST_DOCS, PURCHASE_GATEWAY_DOCS, PURCHASE_VERIFY_DOCS_RESPONSE, \
-    PURCHASE_GATEWAY_DOCS_RESPONSE
+    PURCHASE_GATEWAY_DOCS_RESPONSE, ORDER_POST_DOCS_RESPONSE
 from ...services.api.permissions import ServicePermission
 
 
@@ -38,7 +38,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 ))
 @method_decorator(name='create', decorator=swagger_auto_schema(
     operation_description="Create a order for the service.",
-    request_body=ORDER_POST_DOCS
+    request_body=ORDER_POST_DOCS, responses={201: ORDER_POST_DOCS_RESPONSE}
 ))
 class OrderViewSet(
     viewsets.GenericViewSet,
@@ -73,13 +73,27 @@ class PurchaseAPIView(viewsets.ViewSet):
     def gateway(self, request, *args, **kwargs):
         serializer = PurchaseSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+        gateway = serializer.validated_data['gateway']
+        order = serializer.validated_data['order']
+        with transaction.atomic():
+            payment = Order.objects.select_related(
+                'service',
+                'gateway'
+            ).select_for_update(of=('self',)).get(
+                id=order.id
+            )
 
+            payment.gateway = gateway
+            payment.save()
+
+        if payment.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNTCION_MELLAT]:
+            return Response({'order': payment.id, 'gateway': gateway.id})
         return Response(
             {
                 'gateway_url': reverse(
                     'bank-gateway',
                     request=request,
-                    kwargs={"order_id": serializer.validated_data['order'].id})
+                    kwargs={"order_id": payment.id})
             }
         )
 
@@ -98,7 +112,7 @@ class PurchaseAPIView(viewsets.ViewSet):
             payment = Order.objects.select_related(
                 'service',
                 'gateway'
-            ).select_for_update().get(
+            ).select_for_update(of=('self',)).get(
                 id=order.id
             )
             purchase_verified = BazaarService.verify_purchase(

@@ -64,7 +64,7 @@ class VerifyView(View):
             payment = Order.objects.select_related(
                 'service',
                 'gateway'
-            ).select_for_update().get(
+            ).select_for_update(of=('self',)).get(
                 invoice_number=invoice_number
             )
 
@@ -118,7 +118,6 @@ def render_bank_page(
                 "localDate": datetime.now().strftime("%Y%m%d"),
                 "localTime": datetime.now().strftime("%H%M%S"),
 
-                "extra_data": kwargs,
             },
             'request_url': f"{request_url}?RefId={str(invoice_id)}",
         })
@@ -127,12 +126,10 @@ def render_bank_page(
         render_context.update({
             "form_data": {
                 "ResNum": invoice_id,
-                "request_url": request_url,
                 "MID": merchant_id,
                 "RedirectURL": request.build_absolute_uri(reverse('verify-payment')),
                 "Amount": amount * 10,
                 "CellNumber": phone_number,
-                "extra_data": kwargs,
             }
         })
 
