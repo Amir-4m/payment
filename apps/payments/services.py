@@ -106,6 +106,7 @@ class SamanService:
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
                 logger.warning(f"result of verify purchase for order {order.id} is :{res}")
                 if int(res) == order.price * 10:
+                    logger.info(f'payment verified for order {order.id}: {res}')
                     purchase_verified = True
             except Exception as e:
                 logger.error(str(e))
@@ -117,3 +118,19 @@ class SamanService:
 
 class MellatService:
     transport = Transport(cache=InMemoryCache())
+
+    def verify_mellat(self, order, data):
+        reference_id = data.get("RefNum", "")
+        order.log = json.dumps(data)
+        purchase_verified = False
+        try:
+            wsdl = order.gateway.properties.get('verify_url')
+            mid = order.gateway.properties.get('merchant_id')
+            username = order.gateway.properties.get('username')
+            password = order.gateway.properties.get('password')
+            client = zeep.Client(wsdl=wsdl, transport=self.transport)
+            res = client.service.verifyTransaction(mid, str(username), str(password), 11, 10)
+            if int(res) == order.price * 10:
+                purchase_verified = True
+        except Exception as e:
+            logger.error(str(e))

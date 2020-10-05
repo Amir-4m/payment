@@ -4,7 +4,7 @@ pytz==2020.1
 sqlparse==0.2.4
 
 Django>=2.2, <2.3
-djangorestframework>=3.11, <4.0
+djangorestframework==3.11.1
 
 python-decouple
 celery>=4.4, <4.5

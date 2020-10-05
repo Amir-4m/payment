@@ -172,7 +172,7 @@ class GetBankViewTestCase(TestCase):
         }
 
         html = f"""
-        <input type="hidden" name="ResNum" value="{order.invoice_number}"/>
+        <input type="hidden" name="ResNum" value="{order.transaction_id}"/>
         <input type="hidden" name="MID" value="{order.gateway.properties['merchant_id']}"/>
         <input type="hidden" name="RedirectURL" value="http://testserver/payments/verify/"/>
         <input type="hidden" name="Amount" value="{order.price * 10}"/>
@@ -191,7 +191,7 @@ class VerifyViewTestCase(TestCase):
     fixtures = ['payment', 'service']
     view_name = 'verify-payment'
 
-    def test_post_no_invoice_number(self):
+    def test_post_no_transaction_id(self):
         url = reverse(self.view_name)
         response = self.client.post(url)
 
@@ -200,26 +200,26 @@ class VerifyViewTestCase(TestCase):
 
     def test_post_invalid_order(self):
         url = reverse(self.view_name)
-        response = self.client.post(url + '?invoice_number=cd61b980-649c-42fb-877f-0614054f56b6')
+        response = self.client.post(url + '?transaction_id=cd61b980-649c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
 
     def test_post_order_paid_not_none(self):
         url = reverse(self.view_name)
-        response = self.client.post(url + '?invoice_number=cd61b980-6c3c-42fb-877f-0614054f56b6')
+        response = self.client.post(url + '?transaction_id=cd61b980-6c3c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 404)
 
     def test_post_order_invalid_gateway(self):
         url = reverse(self.view_name)
-        response = self.client.post(url + '?invoice_number=cd61b980-6c5c-42fb-877f-0614054f56b6')
+        response = self.client.post(url + '?transaction_id=cd61b980-6c5c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 302)
 
     def test_post_invalid_uuid_form(self):
         url = reverse(self.view_name)
-        response = self.client.post(url + '?invoice_number=test')
+        response = self.client.post(url + '?transaction_id=test')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
@@ -228,12 +228,12 @@ class VerifyViewTestCase(TestCase):
     def test_post_valid_order(self, mock_method):
         mock_method.return_value = True
         url = reverse(self.view_name)
-        order = Order.objects.get(invoice_number='cd61b980-6c9c-42fb-877f-0614054f56b6')
-        response = self.client.post(url + f'?invoice_number={order.invoice_number}')
+        order = Order.objects.get(transaction_id='cd61b980-6c9c-42fb-877f-0614054f56b6')
+        response = self.client.post(url + f'?transaction_id={order.transaction_id}')
         order.refresh_from_db()
         params = {
             'purchase_verified': True,
-            'service_reference': order.service_reference,
+            'transaction_id': order.transaction_id,
             'refNum': order.properties.get("RefNum")
         }
 
@@ -374,7 +374,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
 
 class PurchaseAPITestCase(PaymentBaseAPITestCase):
-    def test_gateway(self):
+    def test_gateway_bank(self):
         url = reverse('purchase-gateway')
         data = {
             'gateway': Gateway.objects.filter(services=self.service).first().id,
@@ -387,6 +387,21 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
         self.assertEqual(
             response_data,
             {'gateway_url': f'http://testserver/payments/gateway-bank/{data["order"]}/'}
+        )
+
+    def test_gateway_psp(self):
+        url = reverse('purchase-gateway')
+        data = {
+            'gateway': Gateway.objects.filter(services=self.service, id=2).first().id,
+            'order': Order.objects.get(id=2).id,
+        }
+        response = self.client.post(url, data=data, format='json')
+        response_data = json.loads(force_text(response.content))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response_data,
+            {'order': data['order'], 'gateway': data['gateway']}
         )
 
     @patch('apps.payments.services.BazaarService.verify_purchase')

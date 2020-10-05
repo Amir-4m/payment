@@ -27,7 +27,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'gateway', 'price', 'service_reference', 'is_paid', 'properties', 'gateways'
+            'gateway', 'transaction_id', 'price', 'service_reference', 'is_paid', 'properties', 'gateways'
         )
         read_only_fields = ('gateway',)
 

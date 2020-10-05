@@ -32,7 +32,7 @@ class GetBankView(View):
         return render_bank_page(
             request,
             payment.gateway.code,
-            payment.invoice_number,
+            payment.transaction_id,
             payment.gateway.properties.get('gateway_url'),
             payment.gateway.properties.get('merchant_id'),
             payment.price,
@@ -55,9 +55,9 @@ class VerifyView(View):
         this method use for bank response posts
         """
         data = request.POST
-        invoice_number = data.get("ResNum") or request.GET.get('invoice_number')
+        transaction_id = data.get("ResNum") or request.GET.get('transaction_id')
 
-        if not invoice_number:
+        if not transaction_id:
             return HttpResponse("")
 
         # check and validate parameters
@@ -66,7 +66,7 @@ class VerifyView(View):
                 'service',
                 'gateway'
             ).select_for_update(of=('self',)).get(
-                invoice_number=invoice_number
+                transaction_id=transaction_id
             )
         except Order.DoesNotExist:
             return HttpResponse("")
@@ -86,7 +86,7 @@ class VerifyView(View):
 
         params = {
             'purchase_verified': purchase_verified,
-            'service_reference': payment.service_reference,
+            'transaction_id': payment.transaction_id,
             'refNum': data.get("RefNum")
         }
 
@@ -113,16 +113,16 @@ def render_bank_page(
         render_context.update({
             "form_data": {
                 "terminalId": merchant_id,
+                "RefId": str(invoice_id),
                 "userName": username,
                 "userPassword": password,
                 "callBackUrl": request.build_absolute_uri(reverse('verify-payment')),
                 "amount": amount * 10,
-                "orderId": invoice_id,
+                "orderId": 10,
                 "localDate": datetime.now().strftime("%Y%m%d"),
                 "localTime": datetime.now().strftime("%H%M%S"),
 
             },
-            'request_url': f"{request_url}?RefId={str(invoice_id)}",
         })
 
     elif gateway_code == "SAMAN":
