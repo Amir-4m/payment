@@ -10,7 +10,7 @@ from django.conf import settings
 from zeep.cache import InMemoryCache
 from zeep.transports import Transport
 
-logger = logging.getLogger('errors')
+logger = logging.getLogger(__name__)
 
 
 class BazaarService(object):
@@ -32,6 +32,7 @@ class BazaarService(object):
             res_json = response.json()
             access_code = res_json.get('access_token')
             cache.set('bazaar_access_code', access_code)
+            logger.info('set bazzar access code was successful')
             with open(f"{settings.BASE_DIR}/apps/payments/token/token.txt", 'w') as token_file:
                 json.dump(res_json, token_file)
             return access_code
@@ -48,6 +49,7 @@ class BazaarService(object):
             res_json = response.json()
             access_code = res_json.get('access_token')
             cache.set('bazaar_access_code', access_code)
+            logger.info('refreshed bazzar access code was successful')
             return access_code
         else:
             return access_code
@@ -104,15 +106,16 @@ class SamanService:
                 mid = order.gateway.properties.get('merchant_id')
                 client = zeep.Client(wsdl=wsdl, transport=self.transport)
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
-                logger.warning(f"result of verify purchase for order {order.id} is :{res}")
                 if int(res) == order.price * 10:
-                    logger.info(f'payment verified for order {order.id}: {res}')
+                    logger.info(f'payment verified for order {order.id}: {int(res)}')
                     purchase_verified = True
+                logger.warning(f'payment was not verified for order {order.id} due to : {int(res)} ')
             except Exception as e:
                 logger.error(str(e))
         order.is_paid = purchase_verified
         order.reference_id = reference_id
         order.save()
+        logger.info(f'verifing order {order.id} done with status :{purchase_verified}')
         return purchase_verified
 
 
