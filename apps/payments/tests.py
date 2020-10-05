@@ -221,8 +221,7 @@ class VerifyViewTestCase(TestCase):
         url = reverse(self.view_name)
         response = self.client.post(url + '?transaction_id=test')
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'')
+        self.assertEqual(response.status_code, 400)
 
     @patch('apps.payments.services.SamanService.verify_saman')
     def test_post_valid_order(self, mock_method):
@@ -256,6 +255,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
             'gateway': Gateway.objects.filter(services=self.service).first().id,
             'service_reference': 'hello',
             'price': 1000,
+            'properties':{'redirect_url':'test.com'}
         }
         response = self.client.post(url, data=data, format='json')
         response_data = json.loads(force_text(response.content))
@@ -360,14 +360,14 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
         data = {
             'gateway': Gateway.objects.first(),
             'price': 1000,
-            'service_reference': '1'
+            'service_reference': 'testref'
         }
 
         serializer = OrderSerializer(data=data, context={'request': self.request})
 
         self.assertRaisesMessage(
             RestValidationError,
-            'Order with this service and service reference already exists!',
+            'Order with this service and service reference has been paid already!',
             serializer.validate,
             data
         )
