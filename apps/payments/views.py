@@ -1,8 +1,9 @@
+import logging
 from urllib.parse import urlencode
 from datetime import datetime
 
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -11,6 +12,8 @@ from django.views.generic import View
 
 from .models import Order, Gateway
 from .services import SamanService
+
+logger = logging.getLogger(__name__)
 
 
 def bazaar_token_view(request, *args, **kwargs):
@@ -57,9 +60,6 @@ class VerifyView(View):
         data = request.POST
         transaction_id = data.get("ResNum") or request.GET.get('transaction_id')
 
-        if not transaction_id:
-            return HttpResponse("")
-
         # check and validate parameters
         try:
             payment = Order.objects.select_related(
@@ -69,11 +69,17 @@ class VerifyView(View):
                 transaction_id=transaction_id
             )
         except Order.DoesNotExist:
-            return HttpResponse("")
-        except Exception:
+            logger.error(f'order with transaction_id {transaction_id} does not exists!')
             return HttpResponse("")
 
+        except Exception as e:
+            logger.error(
+                f'error occurred for verifying bank transaction for order with transaction_id {transaction_id}'
+            )
+            return HttpResponseBadRequest(e)
+
         if payment.is_paid is not None:
+            logger.error(f'order with transaction_id {transaction_id} is_paid status is not None!')
             raise Http404("No order has been found !")
 
         if payment.gateway.code == Gateway.FUNCTION_SAMAN:

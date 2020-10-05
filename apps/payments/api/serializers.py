@@ -47,11 +47,32 @@ class OrderSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request = self.context['request']
         service_reference = attrs.get('service_reference')
-        if Order.objects.filter(service=request.auth['service'], service_reference=service_reference).exists():
+        qs = Order.objects.filter(
+            service=request.auth['service'], service_reference=service_reference,
+            is_paid__in=[True, False]
+        )
+        if qs.exists():
             raise ValidationError(
-                detail={'detail': _("Order with this service and service reference already exists!")}
+                detail={'detail': _("Order with this service and service reference has been paid already!")}
             )
         return attrs
+
+    def create(self, validated_data):
+        price = validated_data.get('price')
+        service_reference = validated_data.get('service_reference')
+        is_paid = validated_data.get('is_paid')
+        properties = validated_data.get('properties')
+        order, _created = Order.objects.get_or_create(
+            service_reference=service_reference,
+            defaults={
+                'price': price,
+                'is_paid': is_paid,
+                'properties': properties,
+                'service': validated_data['service']
+
+            }
+        )
+        return order
 
 
 class PurchaseSerializer(serializers.Serializer):
