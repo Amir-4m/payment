@@ -19,7 +19,7 @@ class BazaarService(object):
         cache = caches['payments']
         access_code = cache.get('bazaar_access_code')
         endpoint = 'https://pardakht.cafebazaar.ir/devapi/v2/auth/token/'
-        if access_code is None and not os.path.isfile(f"{settings.BASE_DIR}/apps/payments/token/token.txt"):
+        if access_code is None and cache.get('bazaar_token') is None:
             data = {
                 "grant_type": "authorization_code",
                 "code": gateway.properties.get('auth_code'),
@@ -28,17 +28,16 @@ class BazaarService(object):
                 "client_secret": gateway.properties.get('client_secret')
             }
             response = requests.post(endpoint, data=data)
+            logger.info(f'getting bazaar token: {response.text}')
             response.raise_for_status()
             res_json = response.json()
             access_code = res_json.get('access_token')
             cache.set('bazaar_access_code', access_code)
             logger.info('set bazzar access code was successful')
-            with open(f"{settings.BASE_DIR}/apps/payments/token/token.txt", 'w') as token_file:
-                json.dump(res_json, token_file)
+            cache.set('bazaar_token', json.dumps(res_json), 60 * 60 * 3600)
             return access_code
-        elif access_code is None and os.path.isfile(f"{settings.BASE_DIR}/apps/payments/token/token.txt"):
-            with open(f"{settings.BASE_DIR}/apps/payments/token/token.txt") as json_file:
-                refresh_token = json.load(json_file).get('refresh_token')
+        elif access_code is None and cache.get('bazaar_token') is not None:
+            refresh_token = json.loads(cache.get('bazaar_token')).get('refresh_token')
             data = {
                 "grant_type": "refresh_token",
                 "client_id": gateway.properties.get('client_id'),
@@ -74,7 +73,8 @@ class BazaarService(object):
             if response.status_code == 200:
                 purchase_verified = True
             else:
-                logger.warning(f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
+                logger.warning(
+                    f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
         except Exception as e:
             logger.error(f"bazaar purchase verification got error for order {order.id}: {e}")
 
