@@ -74,7 +74,7 @@ class BazaarService(object):
             if response.status_code == 200:
                 purchase_verified = True
             else:
-                logger.warning(f"bazaar purchase were not verified with response : {response.text}")
+                logger.warning(f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
         except Exception as e:
             logger.error(f"bazaar purchase verification got error for order {order.id}: {e}")
 
