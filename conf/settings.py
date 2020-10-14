@@ -98,7 +98,7 @@ CACHES = {
     },
     'payments': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': 'apps/payments/access_token',
+        'LOCATION': 'caches',
         'TIMEOUT': 3600
     }
 }
