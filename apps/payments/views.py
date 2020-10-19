@@ -12,6 +12,7 @@ from django.views.generic import View
 
 from .models import Order, Gateway
 from .services import SamanService
+from .utils import url_parser
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +97,7 @@ class VerifyView(View):
             'refNum': data.get("RefNum")
         }
 
-        return redirect(f"{payment.properties.get('redirect_url')}?{urlencode(params)}")
+        return redirect(url_parser(payment.properties.get('redirect_url'), params=params))
 
 
 def render_bank_page(
