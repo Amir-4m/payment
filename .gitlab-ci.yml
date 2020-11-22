@@ -39,7 +39,7 @@ test_production:
     - supervisorctl restart $PROJECT_DIR:*
 
 deploy_staging:
-  extends: deploy_p
+  extends: .deploy_p
   only:
     - develop
   tags:
@@ -47,7 +47,7 @@ deploy_staging:
     - staging
 
 depoly_production:
-  extends: deploy_p
+  extends: .deploy_p
   only:
     - master
     # - /^release-.*$/
