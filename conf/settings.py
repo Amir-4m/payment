@@ -145,9 +145,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
 
 FIXTURE_DIRS = (
     BASE_DIR / 'fixtures',
