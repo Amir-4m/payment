@@ -26,10 +26,7 @@ test_production:
   extends: .project_test
 
 .deploy_p:
-  stage: deploy
-  before_script:
-    - cd /var/www/$PROJECT_DIR/project/
-    - source /var/www/$PROJECT_DIR/venv/bin/activate
+  extends: .deploy
   script:
     - git pull
     - pip install -r requirements.txt
