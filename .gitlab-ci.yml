@@ -3,11 +3,8 @@ include: "http://git.yourblueapi.com/gitlab-ci.yml"
 variables:
   PROJECT_DIR: "payment_gateway"
 
-
-
-test:
+.project_test:
   extends: .test
-
   script:
     - source $CI_PROJECT_DIR/venv/bin/activate
     - python manage.py makemigrations
@@ -19,3 +16,11 @@ test:
   artifacts:
     paths:
       - htmlcov
+
+test_staging:
+  extends: .project_test
+
+
+
+test_production:
+  extends: .project_test
