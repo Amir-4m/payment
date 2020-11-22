@@ -34,7 +34,7 @@ test_production:
     - python manage.py migrate
     - python manage.py collectstatic --noinput
     - pwd
-    - python manage.py compilemessages
+#    - python manage.py compilemessages
     - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
     - supervisorctl restart $PROJECT_DIR:*
 
