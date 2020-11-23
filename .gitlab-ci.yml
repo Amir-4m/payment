@@ -2,15 +2,3 @@ include: "http://git.yourblueapi.com/gitlab-ci.yml"
 
 variables:
   PROJECT_DIR: "payment_gateway"
-
-.test:
-  script:
-    - python manage.py check
-    - python manage.py makemigrations
-    - coverage run manage.py test
-    - coverage html
-    - coverage report
-  coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
-  artifacts:
-    paths:
-      - htmlcov
