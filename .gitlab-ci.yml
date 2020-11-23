@@ -3,10 +3,8 @@ include: "http://git.yourblueapi.com/gitlab-ci.yml"
 variables:
   PROJECT_DIR: "payment_gateway"
 
-
-.test:
+test_staging:
   script:
-    - python manage.py check
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
