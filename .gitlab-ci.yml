@@ -3,56 +3,13 @@ include: "http://git.yourblueapi.com/gitlab-ci.yml"
 variables:
   PROJECT_DIR: "payment_gateway"
 
-.project_test:
-  extends: .test
+.test:
   script:
-    - source $CI_PROJECT_DIR/venv/bin/activate
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
     - coverage report
   coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
-
   artifacts:
     paths:
       - htmlcov
-
-test_staging:
-  extends: .project_test
-
-
-
-test_production:
-  extends: .project_test
-
-.deploy_p:
-  extends: .deploy
-  script:
-    - git pull
-    - pip install -r requirements.txt
-    - python manage.py makemigrations
-    - python manage.py migrate
-    - python manage.py collectstatic --noinput
-    - pwd
-#    - python manage.py compilemessages
-    - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
-    - supervisorctl restart $PROJECT_DIR:*
-
-deploy_staging:
-  extends: .deploy_p
-  only:
-    - develop
-  tags:
-    - django
-    - staging
-
-depoly_production:
-  extends: .deploy_p
-  only:
-    - master
-    # - /^release-.*$/
-    # except:
-    # - branches
-  tags:
-    - django
-    - production
