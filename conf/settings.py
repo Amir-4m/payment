@@ -98,7 +98,7 @@ CACHES = {
     },
     'payments': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': 'apps/payments/access_token',
+        'LOCATION': 'caches',
         'TIMEOUT': 3600
     }
 }
@@ -145,9 +145,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
 
 FIXTURE_DIRS = (
     BASE_DIR / 'fixtures',

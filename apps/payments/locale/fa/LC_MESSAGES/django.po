@@ -1,0 +1,101 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-22 13:46+0330\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps/payments/api/serializers.py:44 apps/payments/api/serializers.py:86
+msgid "service and gateway does not match!"
+msgstr ""
+
+#: apps/payments/api/serializers.py:56
+msgid "Order with this service and service reference has been paid already!"
+msgstr ""
+
+#: apps/payments/api/serializers.py:97 apps/payments/api/serializers.py:117
+msgid "order and service does not match!"
+msgstr ""
+
+#: apps/payments/api/serializers.py:121
+msgid "invalid gateway!"
+msgstr ""
+
+#: apps/payments/models.py:19
+msgid "Saman"
+msgstr ""
+
+#: apps/payments/models.py:20
+msgid "Bazaar"
+msgstr ""
+
+#: apps/payments/models.py:21
+msgid "Mellat"
+msgstr ""
+
+#: apps/payments/models.py:24 apps/payments/models.py:50
+#: apps/payments/models.py:63
+msgid "created time"
+msgstr ""
+
+#: apps/payments/models.py:25 apps/payments/models.py:51
+#: apps/payments/models.py:64
+msgid "updated time"
+msgstr ""
+
+#: apps/payments/models.py:26
+msgid "display name"
+msgstr ""
+
+#: apps/payments/models.py:27 apps/payments/models.py:72
+msgid "properties"
+msgstr ""
+
+#: apps/payments/models.py:28
+msgid "code"
+msgstr ""
+
+#: apps/payments/models.py:52
+msgid "title"
+msgstr ""
+
+#: apps/payments/models.py:56
+msgid "is enable"
+msgstr ""
+
+#: apps/payments/models.py:67
+msgid "price"
+msgstr ""
+
+#: apps/payments/models.py:68
+msgid "transaction_id"
+msgstr ""
+
+#: apps/payments/models.py:69
+msgid "service reference"
+msgstr ""
+
+#: apps/payments/models.py:70
+msgid "reference id"
+msgstr ""
+
+#: apps/payments/models.py:71
+msgid "payment log"
+msgstr ""
+
+#: apps/payments/models.py:73
+msgid "is paid"
+msgstr ""
