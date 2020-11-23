@@ -5,6 +5,7 @@ variables:
 
 .test:
   script:
+    - python manage.py check
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
