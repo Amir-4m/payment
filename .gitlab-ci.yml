@@ -11,3 +11,6 @@ variables:
     - coverage html
     - coverage report
   coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
+  artifacts:
+    paths:
+      - htmlcov
