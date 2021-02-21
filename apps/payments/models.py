@@ -26,7 +26,7 @@ class Gateway(models.Model):
     display_name = models.CharField(_('display name'), max_length=120)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
-    # services = models.ManyToManyField('services.Service', related_name='gateways', through='ServiceGateway')
+    services = models.ManyToManyField('services.Service', related_name='gateways', through='ServiceGateway')
     is_enable = models.BooleanField(default=True)
 
     def clean(self):
@@ -62,6 +62,7 @@ class ServiceGateway(models.Model):
     display_name = models.CharField(_('display name'), max_length=120)
     image = models.ImageField(upload_to='gateways/images')
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
+    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(_('is enable'), default=True)
@@ -90,7 +91,8 @@ class Order(models.Model):
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='orders')
-    gateway = models.ForeignKey(ServiceGateway, on_delete=models.CASCADE, related_name='orders', null=True)
+    gateway = models.ForeignKey(Gateway, on_delete=models.CASCADE, related_name='orders', null=True)
+    service_gateway = models.ForeignKey(ServiceGateway, on_delete=models.CASCADE, related_name='orders', null=True)
     price = models.PositiveIntegerField(_('price'))
     transaction_id = models.UUIDField(_('transaction_id'), default=uuid.uuid4, unique=True, editable=False)
     service_reference = models.CharField(_("service reference"), max_length=100)
