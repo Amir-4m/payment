@@ -30,7 +30,7 @@ class GetBankView(View):
         # check and validate parameters
 
         payment = get_object_or_404(Order, id=order_id)
-        if payment.is_paid is not None or payment.gateway is None or payment.properties.get('redirect_url') is None:
+        if payment.is_paid is not None or payment.gateway is None:
             raise Http404('No order has been found !')
 
         return render_bank_page(
