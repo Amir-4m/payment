@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from apps.services.api.authentications import ServiceAuthentication
-from ..models import Gateway, Order, ServiceGateway
+from ..models import Order, ServiceGateway
 from .serializers import ServiceGatewaySerializer, OrderSerializer, PurchaseSerializer, VerifySerializer
 from ..pagination import OrderPagination
 from ..services import BazaarService
@@ -21,7 +21,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     """
     Shows a list of available gateways for the specific service.
     """
-    queryset = ServiceGateway.objects.select_related('gateway').all()
+    queryset = ServiceGateway.objects.all()
     serializer_class = ServiceGatewaySerializer
     authentication_classes = (ServiceAuthentication,)
     permission_classes = (ServicePermission,)
@@ -29,7 +29,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         service = self.request.auth['service']
         qs = super(ServiceGatewayViewSet, self).get_queryset()
-        return qs.filter(service=service, is_enable=True, gateway__is_enable=True)
+        return qs.filter(service=service, is_enable=True)
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(
@@ -88,7 +88,7 @@ class PurchaseAPIView(viewsets.ViewSet):
             payment.gateway = gateway
             payment.save()
 
-        if payment.gateway.code not in [Gateway.FUNCTION_SAMAN, Gateway.FUNCTION_MELLAT]:
+        if payment.gateway.code not in [ServiceGateway.FUNCTION_SAMAN, ServiceGateway.FUNCTION_MELLAT]:
             return Response({'order': payment.id, 'gateway': gateway.id})
         return Response(
             {

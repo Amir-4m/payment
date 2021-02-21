@@ -88,11 +88,17 @@
     "fields": {
       "created_time": "2020-08-16T07:57:37.769Z",
       "updated_time": "2020-08-18T09:51:02.468Z",
+      "display_name": "saman",
+      "properties": {
+        "verify_url": "https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL",
+        "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
+        "merchant_id": "1234"
+      },
+      "code": "SAMAN",
       "title": "saaman",
       "image": "gateways/images/ch.jpeg",
       "is_enable": true,
-      "service": 1,
-      "gateway": 1
+      "service": 1
     }
   },
   {
@@ -101,11 +107,17 @@
     "fields": {
       "created_time": "2020-08-16T07:57:37.769Z",
       "updated_time": "2020-08-18T09:51:02.468Z",
+      "display_name": "saman",
+      "properties": {
+        "verify_url": "https://sep.shaparak.ir/payments/referencepayment.asmx?WSDL",
+        "gateway_url": "https://sep.shaparak.ir/Payment.aspx",
+        "merchant_id": "1234"
+      },
+      "code": "SAMAN",
       "title": "saaman",
       "image": "gateways/images/ch.jpeg",
       "is_enable": true,
-      "service": 2,
-      "gateway": 1
+      "service": 2
     }
   },
   {
@@ -114,11 +126,38 @@
     "fields": {
       "created_time": "2020-08-16T07:57:37.769Z",
       "updated_time": "2020-08-18T09:51:02.468Z",
+      "display_name": "bazaar",
+      "properties": {
+        "auth_code": "123",
+        "client_id": "123",
+        "redirect_uri": "http://127.0.0.1:9099/payments/bazaar-token/",
+        "client_secret": "123"
+      },
+      "code": "BAZAAR",
       "title": "bazaar",
       "image": "gateways/images/ch.jpeg",
       "is_enable": true,
-      "service": 1,
-      "gateway": 2
+      "service": 1
+    }
+  },
+  {
+    "model": "payments.servicegateway",
+    "pk": 4,
+    "fields": {
+      "created_time": "2020-08-16T07:57:37.769Z",
+      "updated_time": "2020-08-18T09:51:02.468Z",
+      "display_name": "bazaar",
+      "properties": {
+        "auth_code": "123",
+        "client_id": "123",
+        "redirect_uri": "http://127.0.0.1:9099/payments/bazaar-token/",
+        "client_secret": "123"
+      },
+      "code": "TEST",
+      "title": "bazaar",
+      "image": "gateways/images/ch.jpeg",
+      "is_enable": true,
+      "service": 1
     }
   },
   {
@@ -145,7 +184,7 @@
     "pk": 2,
     "fields": {
       "service": 1,
-      "gateway": 2,
+      "gateway": 3,
       "service_reference": 2,
       "price": 500,
       "transaction_id": "21877ef0-47fe-4cc7-8057-83fc0ee73416",
@@ -164,7 +203,7 @@
     "pk": 3,
     "fields": {
       "service": 1,
-      "gateway": 3,
+      "gateway": 4,
       "service_reference": 3,
       "price": 500,
       "transaction_id": "21477ef0-47fe-4cc7-8057-83fc0ee73416",
@@ -221,7 +260,7 @@
     "pk": 6,
     "fields": {
       "service": 1,
-      "gateway": 3,
+      "gateway": 4,
       "service_reference": 7,
       "price": 1000,
       "transaction_id": "cd61b980-6c5c-42fb-877f-0614054f56b6",
