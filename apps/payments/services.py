@@ -4,6 +4,7 @@ import os
 
 import requests
 import zeep
+from datetime import datetime
 from django.core.cache import caches
 from django.conf import settings
 
@@ -123,6 +124,32 @@ class SamanService:
 
 class MellatService:
     transport = Transport(cache=InMemoryCache())
+
+    def request_mellat(self, order):
+        try:
+            wsdl = order.gateway.properties.get('request_url')
+            terminal_id = order.gateway.properties.get('merchant_id')
+            username = order.gateway.properties.get('username')
+            password = order.gateway.properties.get('password')
+            order_id = order.created_time.strftime('%Y%m%d%H%M')
+            amount = order.price * 10
+            local_date = datetime.now().strftime("%Y%m%d")
+            local_time = datetime.now().strftime("%H%M%S")
+            ref_id = order.transaction_id
+            callback_url = order.properties['redirect_url']
+            payer_id = order.service.id
+            client = zeep.Client(wsdl=wsdl, transport=self.transport)
+            res = client.service.bpPayRequest(
+                terminal_id, str(username), str(password),
+                order_id, amount, local_date,
+                local_time, str(ref_id), callback_url, payer_id
+            )
+            print(res)
+            if res.split(',')[0] == '0':
+                return res.split(',')[1]
+            return None
+        except Exception as e:
+            logger.error(str(e))
 
     def verify_mellat(self, order, data):
         reference_id = data.get("RefNum", "")
