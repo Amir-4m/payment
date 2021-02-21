@@ -255,7 +255,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
             'gateway': Gateway.objects.filter(services=self.service).first().id,
             'service_reference': 'hello',
             'price': 1000,
-            'properties':{'redirect_url':'test.com'}
+            'redirect_url': 'test.com'
         }
         response = self.client.post(url, data=data, format='json')
         response_data = json.loads(force_text(response.content))
