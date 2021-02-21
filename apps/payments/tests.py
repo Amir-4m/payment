@@ -19,7 +19,7 @@ from rest_framework.test import APITestCase, APIClient
 from mock import patch
 
 from apps.payments.api.serializers import OrderSerializer, PurchaseSerializer, VerifySerializer
-from apps.payments.models import Gateway, Order
+from apps.payments.models import Gateway, Order, ServiceGateway
 from apps.services.models import Service
 
 
@@ -48,8 +48,8 @@ class GatewayAPITestCase(PaymentBaseAPITestCase):
         gw = self.service.service_gateways.first()
         expected_data = {
             'id': gw.id,
-            'display_name': gw.gateway.display_name,
-            'code': gw.gateway.code,
+            'display_name': gw.display_name,
+            'code': gw.code,
             'image_url': 'http://testserver' + gw.image.url
         }
 
@@ -252,7 +252,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
     def test_post_order_valid_data(self):
         url = reverse('order-list')
         data = {
-            'gateway': Gateway.objects.filter(services=self.service).first().id,
+            'gateway': ServiceGateway.objects.filter(service=self.service).first().id,
             'service_reference': 'hello',
             'price': 1000,
             'redirect_url': 'test.com'
@@ -392,7 +392,7 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
     def test_gateway_psp(self):
         url = reverse('purchase-gateway')
         data = {
-            'gateway': Gateway.objects.filter(services=self.service, id=2).first().id,
+            'gateway': ServiceGateway.objects.filter(service=self.service, id=3).first().id,
             'order': Order.objects.get(id=2).id,
         }
         response = self.client.post(url, data=data, format='json')

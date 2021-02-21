@@ -47,16 +47,44 @@ class Gateway(models.Model):
 
 
 class ServiceGateway(models.Model):
+    FUNCTION_SAMAN = "SAMAN"
+    FUNCTION_BAZAAR = "BAZAAR"
+    FUNCTION_MELLAT = "MELLAT"
+    GATEWAY_FUNCTIONS = (
+        (FUNCTION_SAMAN, _('Saman')),
+        (FUNCTION_BAZAAR, _('Bazaar')),
+        (FUNCTION_MELLAT, _('Mellat')),
+    )
+
     created_time = models.DateTimeField(_("created time"), auto_now_add=True)
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     title = models.CharField(_('title'), max_length=120)
+    display_name = models.CharField(_('display name'), max_length=120)
     image = models.ImageField(upload_to='gateways/images')
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
     gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE)
+    properties = JSONField(_("properties"), default=dict)
+    code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(_('is enable'), default=True)
 
-    class Meta:
-        unique_together = ('service', 'gateway')
+    # class Meta:
+    #     unique_together = ('service', 'gateway')
+
+    def clean(self):
+        bazaar_params = ['auth_code', 'client_id', 'redirect_uri', 'client_secret']
+        bank_params = ['verify_url', 'gateway_url', 'merchant_id']
+
+        if self.code == self.FUNCTION_BAZAAR:
+            for param in bazaar_params:
+                if param not in self.properties:
+                    raise ValidationError(f"{param} should be provided in gateway properties!")
+        else:
+            for param in bank_params:
+                if param not in self.properties:
+                    raise ValidationError(f"{param} should be provided in gateway properties!")
+
+    def __str__(self):
+        return self.display_name
 
 
 class Order(models.Model):
@@ -64,6 +92,7 @@ class Order(models.Model):
     updated_time = models.DateTimeField(_("updated time"), auto_now=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='orders')
     gateway = models.ForeignKey(Gateway, on_delete=models.CASCADE, related_name='orders', null=True)
+    service_gateway = models.ForeignKey(ServiceGateway, on_delete=models.CASCADE, related_name='orders', null=True)
     price = models.PositiveIntegerField(_('price'))
     transaction_id = models.UUIDField(_('transaction_id'), default=uuid.uuid4, unique=True, editable=False)
     service_reference = models.CharField(_("service reference"), max_length=100)
