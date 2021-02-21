@@ -23,13 +23,16 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
+    redirect_url = serializers.CharField(write_only=True)
 
     class Meta:
         model = Order
         fields = (
-            'gateway', 'transaction_id', 'price', 'service_reference', 'is_paid', 'properties', 'gateways'
+            'gateway', 'transaction_id', 'price', 'service_reference',
+            'properties', 'is_paid', 'redirect_url', 'gateways'
         )
-        read_only_fields = ('gateway',)
+        extra_kwargs = {'properties': {'read_only': True}}
+        read_only_fields = ('gateway', 'is_paid')
 
     def get_gateways(self, obj):
         service = self.context['request'].auth['service']
@@ -48,8 +51,9 @@ class OrderSerializer(serializers.ModelSerializer):
         request = self.context['request']
         service_reference = attrs.get('service_reference')
         qs = Order.objects.filter(
-            service=request.auth['service'], service_reference=service_reference,
-            is_paid__in=[True, False]
+            service=request.auth['service'],
+            service_reference=service_reference,
+            is_paid__isnull=False
         )
         if qs.exists():
             raise ValidationError(
@@ -60,16 +64,13 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         price = validated_data.get('price')
         service_reference = validated_data.get('service_reference')
-        is_paid = validated_data.get('is_paid')
-        properties = validated_data.get('properties')
+        properties = {'redirect_url': validated_data['redirect_url']}
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
+            service=validated_data['service'],
             defaults={
                 'price': price,
-                'is_paid': is_paid,
                 'properties': properties,
-                'service': validated_data['service']
-
             }
         )
         return order

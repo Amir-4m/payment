@@ -53,6 +53,10 @@ class OrderViewSet(viewsets.GenericViewSet,
     authentication_classes = (ServiceAuthentication,)
     permission_classes = (ServicePermission,)
 
+    def get_queryset(self):
+        qs = super(OrderViewSet, self).get_queryset()
+        return qs.filter(service=self.request.auth['service'])
+
     def perform_create(self, serializer):
         serializer.save(service=self.request.auth['service'])
 
