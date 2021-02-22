@@ -63,7 +63,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         price = validated_data.get('price')
         service_reference = validated_data.get('service_reference')
-        properties = {'redirect_url': validated_data['redirect_url']}
+        properties = validated_data.get('properties')
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
             service=validated_data['service'],
