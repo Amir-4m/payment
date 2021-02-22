@@ -28,7 +28,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'gateway', 'transaction_id', 'price', 'service_reference',
             'properties', 'is_paid', 'redirect_url', 'gateways'
         )
-        extra_kwargs = {'properties': {'read_only': True}}
         read_only_fields = ('gateway', 'is_paid')
 
     def get_gateways(self, obj):
