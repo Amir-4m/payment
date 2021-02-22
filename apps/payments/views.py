@@ -10,8 +10,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from .models import Order, Gateway
-from .services import SamanService
+from .models import Order, Gateway, ServiceGateway
+from .services import SamanService, MellatService
 from .utils import url_parser
 
 logger = logging.getLogger(__name__)
@@ -30,21 +30,24 @@ class GetBankView(View):
         # check and validate parameters
 
         payment = get_object_or_404(Order, id=order_id)
-        if payment.is_paid is not None or payment.gateway is None:
+        ref_id = None
+        if payment.is_paid is not None or payment.service_gateway is None:
             raise Http404('No order has been found !')
-
+        if payment.service_gateway.code == ServiceGateway.FUNCTION_MELLAT:
+            ref_id = MellatService().request_mellat(payment)
         return render_bank_page(
             request,
-            payment.gateway.code,
+            payment.service_gateway.code,
             payment.transaction_id,
-            payment.gateway.properties.get('gateway_url'),
-            payment.gateway.properties.get('merchant_id'),
+            payment.service_gateway.properties.get('gateway_url'),
+            payment.service_gateway.properties.get('merchant_id'),
             payment.price,
-            username=payment.gateway.properties.get('username'),
-            password=payment.gateway.properties.get('password'),
+            username=payment.service_gateway.properties.get('username'),
+            password=payment.service_gateway.properties.get('password'),
             service_logo=payment.service.logo,
             service_color=payment.service.color,
             service_name=payment.service.name,
+            ref_id=ref_id,
         )
 
 
@@ -82,8 +85,7 @@ class VerifyView(View):
         if payment.is_paid is not None:
             logger.error(f'order with transaction_id {transaction_id} is_paid status is not None!')
             raise Http404("No order has been found !")
-
-        if payment.gateway.code == Gateway.FUNCTION_SAMAN:
+        if payment.service_gateway.code == ServiceGateway.FUNCTION_SAMAN:
             purchase_verified = SamanService().verify_saman(
                 order=payment,
                 data=data
@@ -119,16 +121,7 @@ def render_bank_page(
     if gateway_code == "MELLAT":
         render_context.update({
             "form_data": {
-                "terminalId": merchant_id,
-                "RefId": str(invoice_id),
-                "userName": username,
-                "userPassword": password,
-                "callBackUrl": request.build_absolute_uri(reverse('verify-payment')),
-                "amount": amount * 10,
-                "orderId": 10,
-                "localDate": datetime.now().strftime("%Y%m%d"),
-                "localTime": datetime.now().strftime("%H%M%S"),
-
+                "RefId": kwargs.get('ref_id')
             },
         })
 

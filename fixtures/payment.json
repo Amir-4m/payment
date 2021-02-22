@@ -165,7 +165,7 @@
     "pk": 1,
     "fields": {
       "service": 1,
-      "gateway": 1,
+      "service_gateway": 1,
       "service_reference": 1,
       "price": 1000,
       "transaction_id": "cd61b980-6c9c-42fb-877f-0614054f56b6",
@@ -184,7 +184,7 @@
     "pk": 2,
     "fields": {
       "service": 1,
-      "gateway": 3,
+      "service_gateway": 3,
       "service_reference": 2,
       "price": 500,
       "transaction_id": "21877ef0-47fe-4cc7-8057-83fc0ee73416",
@@ -203,7 +203,7 @@
     "pk": 3,
     "fields": {
       "service": 1,
-      "gateway": 4,
+      "service_gateway": 4,
       "service_reference": 3,
       "price": 500,
       "transaction_id": "21477ef0-47fe-4cc7-8057-83fc0ee73416",
@@ -222,7 +222,7 @@
     "pk": 4,
     "fields": {
       "service": 2,
-      "gateway": 2,
+      "service_gateway": 2,
       "service_reference": 5,
       "price": 500,
       "transaction_id": "24877ef0-47fe-4cc7-8057-83fc0ee73416",
@@ -241,7 +241,7 @@
     "pk": 5,
     "fields": {
       "service": 1,
-      "gateway": 1,
+      "service_gateway": 1,
       "service_reference": 6,
       "price": 1000,
       "transaction_id": "cd61b980-6c3c-42fb-877f-0614054f56b6",
@@ -260,7 +260,7 @@
     "pk": 6,
     "fields": {
       "service": 1,
-      "gateway": 4,
+      "service_gateway": 4,
       "service_reference": 7,
       "price": 1000,
       "transaction_id": "cd61b980-6c5c-42fb-877f-0614054f56b6",
@@ -279,7 +279,7 @@
     "pk": 7,
     "fields": {
       "service": 1,
-      "gateway": 1,
+      "service_gateway": 1,
       "service_reference": "testref",
       "price": 1000,
       "transaction_id": "cd61b980-4c9c-42fb-877f-0614054f56b6",

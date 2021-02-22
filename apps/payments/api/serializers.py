@@ -113,7 +113,7 @@ class VerifySerializer(serializers.Serializer):
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
-        if order.gateway.code != ServiceGateway.FUNCTION_BAZAAR:
+        if order.service_gateway.code != ServiceGateway.FUNCTION_BAZAAR:
             raise ValidationError(
                 detail={'detail': _("invalid gateway!")}
             )

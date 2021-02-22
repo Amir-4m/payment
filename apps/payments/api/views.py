@@ -85,10 +85,10 @@ class PurchaseAPIView(viewsets.ViewSet):
                 id=order.id
             )
 
-            payment.gateway = gateway
+            payment.service_gateway = gateway
             payment.save()
 
-        if payment.gateway.code not in [ServiceGateway.FUNCTION_SAMAN, ServiceGateway.FUNCTION_MELLAT]:
+        if payment.service_gateway.code not in [ServiceGateway.FUNCTION_SAMAN, ServiceGateway.FUNCTION_MELLAT]:
             return Response({'order': payment.id, 'gateway': gateway.id})
         return Response(
             {

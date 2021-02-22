@@ -173,7 +173,7 @@ class GetBankViewTestCase(TestCase):
 
         html = f"""
         <input type="hidden" name="ResNum" value="{order.transaction_id}"/>
-        <input type="hidden" name="MID" value="{order.gateway.properties['merchant_id']}"/>
+        <input type="hidden" name="MID" value="{order.service_gateway.properties['merchant_id']}"/>
         <input type="hidden" name="RedirectURL" value="http://testserver/payments/verify/"/>
         <input type="hidden" name="Amount" value="{order.price * 10}"/>
         <input type="hidden" name="CellNumber" value=""/>
@@ -308,7 +308,7 @@ class OrderModelTestCase(PaymentBaseAPITestCase):
 
     def test_order_properties_none(self):
         instance = Order(
-            gateway_id=1,
+            service_gateway_id=1,
             price=1000,
         )
         self.assertRaisesMessage(
@@ -377,7 +377,7 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
     def test_gateway_bank(self):
         url = reverse('purchase-gateway')
         data = {
-            'gateway': Gateway.objects.filter(services=self.service).first().id,
+            'gateway': ServiceGateway.objects.filter(service=self.service).first().id,
             'order': Order.objects.first().id,
         }
         response = self.client.post(url, data=data, format='json')
