@@ -23,7 +23,7 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
-    redirect_url = serializers.CharField(write_only=True)
+    redirect_url = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
@@ -31,7 +31,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'gateway', 'transaction_id', 'price', 'service_reference',
             'properties', 'is_paid', 'redirect_url', 'gateways'
         )
-        extra_kwargs = {'properties': {'read_only': True}}
         read_only_fields = ('gateway', 'is_paid')
 
     def get_gateways(self, obj):
@@ -64,7 +63,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         price = validated_data.get('price')
         service_reference = validated_data.get('service_reference')
-        properties = {'redirect_url': validated_data['redirect_url']}
+        properties = validated_data.get('properties')
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
             service=validated_data['service'],
