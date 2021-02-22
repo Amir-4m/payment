@@ -31,19 +31,19 @@ class GetBankView(View):
 
         payment = get_object_or_404(Order, id=order_id)
         ref_id = None
-        if payment.is_paid is not None or payment.gateway is None:
+        if payment.is_paid is not None or payment.service_gateway is None:
             raise Http404('No order has been found !')
-        if payment.gateway.code == ServiceGateway.FUNCTION_MELLAT:
+        if payment.service_gateway.code == ServiceGateway.FUNCTION_MELLAT:
             ref_id = MellatService().request_mellat(payment)
         return render_bank_page(
             request,
-            payment.gateway.code,
+            payment.service_gateway.code,
             payment.transaction_id,
-            payment.gateway.properties.get('gateway_url'),
-            payment.gateway.properties.get('merchant_id'),
+            payment.service_gateway.properties.get('gateway_url'),
+            payment.service_gateway.properties.get('merchant_id'),
             payment.price,
-            username=payment.gateway.properties.get('username'),
-            password=payment.gateway.properties.get('password'),
+            username=payment.service_gateway.properties.get('username'),
+            password=payment.service_gateway.properties.get('password'),
             service_logo=payment.service.logo,
             service_color=payment.service.color,
             service_name=payment.service.name,
@@ -85,8 +85,7 @@ class VerifyView(View):
         if payment.is_paid is not None:
             logger.error(f'order with transaction_id {transaction_id} is_paid status is not None!')
             raise Http404("No order has been found !")
-
-        if payment.gateway.code == Gateway.FUNCTION_SAMAN:
+        if payment.service_gateway.code == ServiceGateway.FUNCTION_SAMAN:
             purchase_verified = SamanService().verify_saman(
                 order=payment,
                 data=data

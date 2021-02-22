@@ -62,7 +62,7 @@ class ServiceGateway(models.Model):
     display_name = models.CharField(_('display name'), max_length=120)
     image = models.ImageField(upload_to='gateways/images')
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
-    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE)
+    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE, null=True, blank=True)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(_('is enable'), default=True)
@@ -105,5 +105,5 @@ class Order(models.Model):
         unique_together = ('service', 'service_reference')
 
     def clean(self):
-        if self.gateway and self.gateway.code == Gateway.FUNCTION_SAMAN and 'redirect_url' not in self.properties:
+        if self.service_gateway and self.service_gateway.code == ServiceGateway.FUNCTION_SAMAN and 'redirect_url' not in self.properties:
             raise ValidationError("redirect_url should be provided in gateway properties!")

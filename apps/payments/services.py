@@ -67,7 +67,7 @@ class BazaarService(object):
         )
         iab_url = "{}/{}".format(iab_base_api, iab_api_path)
         try:
-            access_token = BazaarService.get_access_token(order.gateway)
+            access_token = BazaarService.get_access_token(order.service_gateway)
             headers = {'Authorization': access_token}
             response = requests.get(iab_url, headers=headers)
             order.log = response.json()
@@ -105,8 +105,8 @@ class SamanService:
             )
 
             try:
-                wsdl = order.gateway.properties.get('verify_url')
-                mid = order.gateway.properties.get('merchant_id')
+                wsdl = order.service_gateway.properties.get('verify_url')
+                mid = order.service_gateway.properties.get('merchant_id')
                 client = zeep.Client(wsdl=wsdl, transport=self.transport)
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
                 if int(res) == order.price * 10:
@@ -127,11 +127,11 @@ class MellatService:
 
     def request_mellat(self, order):
         try:
-            wsdl = order.gateway.properties.get('request_url')
-            terminal_id = order.gateway.properties.get('merchant_id')
-            username = order.gateway.properties.get('username')
-            password = order.gateway.properties.get('password')
-            order_id = order.created_time.strftime('%Y%m%d%H%M')
+            wsdl = order.service_gateway.properties.get('request_url')
+            terminal_id = order.service_gateway.properties.get('merchant_id')
+            username = order.service_gateway.properties.get('username')
+            password = order.service_gateway.properties.get('password')
+            order_id = order.updated_time.strftime('%Y%m%d%H%M')
             amount = order.price * 10
             local_date = datetime.now().strftime("%Y%m%d")
             local_time = datetime.now().strftime("%H%M%S")
@@ -144,9 +144,11 @@ class MellatService:
                 order_id, amount, local_date,
                 local_time, str(ref_id), callback_url, payer_id
             )
-            print(res)
+
             if res.split(',')[0] == '0':
-                return res.split(',')[1]
+                order.properties['hash_code'] = res.split(',')[1]
+                order.save()
+                return order.properties['hash_code']
             return None
         except Exception as e:
             logger.error(str(e))
@@ -156,10 +158,10 @@ class MellatService:
         order.log = json.dumps(data)
         purchase_verified = False
         try:
-            wsdl = order.gateway.properties.get('verify_url')
-            mid = order.gateway.properties.get('merchant_id')
-            username = order.gateway.properties.get('username')
-            password = order.gateway.properties.get('password')
+            wsdl = order.service_gateway.properties.get('verify_url')
+            mid = order.service_gateway.properties.get('merchant_id')
+            username = order.service_gateway.properties.get('username')
+            password = order.service_gateway.properties.get('password')
             client = zeep.Client(wsdl=wsdl, transport=self.transport)
             res = client.service.verifyTransaction(mid, str(username), str(password), 11, 10)
             if int(res) == order.price * 10:
