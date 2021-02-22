@@ -23,7 +23,7 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
-    redirect_url = serializers.CharField(write_only=True)
+    redirect_url = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
