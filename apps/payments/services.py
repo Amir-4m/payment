@@ -18,7 +18,7 @@ class BazaarService(object):
 
     def get_access_token(self, service_gateway):
         cache = caches['payments']
-        _access_token_key = 'bazaar_access_code_{service_gateway.id}'
+        _access_token_key = f'bazaar_access_code_{service_gateway.id}'
 
         sg_properties = service_gateway.properties
 
@@ -47,7 +47,7 @@ class BazaarService(object):
             logger.info(f'getting bazaar token, response status, {_r.status_code} response body,: {_r.text}, data: {data}')
             try:
                 _r.raise_for_status()
-            except requests.HTTPError:
+            except requests.exceptions.HTTPError:
                 token_data = {}
             else:
                 token_data = _r.json()
@@ -78,7 +78,7 @@ class BazaarService(object):
             order.log = response.json()
             response.raise_for_status()
             purchase_verified = True
-        except requests.HTTPError as e:
+        except requests.exceptions.HTTPError as e:
             logger.warning(f"bazaar purchase not verified for order {order.id} with status: {e.response.status_code}, response : {e.response.text}")
         except Exception as e:
             logger.error(f"bazaar purchase verification got error for order {order.id}: {e}")
