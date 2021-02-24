@@ -17,8 +17,8 @@ class BazaarService(object):
     def get_access_token(service_gateway):
         cache = caches['payments']
         endpoint = 'https://pardakht.cafebazaar.ir/devapi/v2/auth/token/'
-        _token_key = 'bazaar_token_{service_gateway.id}'
-        _access_token_key = 'bazaar_access_code_{service_gateway.id}'
+        _token_key = f'bazaar_token_{service_gateway.id}'
+        _access_token_key = f'bazaar_access_code_{service_gateway.id}'
 
         access_code = cache.get(_access_token_key)
         if access_code is None:
@@ -36,7 +36,7 @@ class BazaarService(object):
                     "grant_type": "authorization_code",
                     "code": service_gateway.properties.get('auth_code'),
                     "client_id": service_gateway.properties.get('client_id'),
-                    "client_secret": service_gateway.properties.get('client_secret')
+                    "client_secret": service_gateway.properties.get('client_secret'),
                     "redirect_uri": service_gateway.properties.get('redirect_uri'),
                 }
 
