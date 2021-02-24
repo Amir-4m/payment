@@ -16,33 +16,35 @@ logger = logging.getLogger(__name__)
 
 class BazaarService(object):
     @staticmethod
-    def get_access_token(gateway):
+    def get_access_token(service_gateway):
         cache = caches['payments']
-        access_code = cache.get('bazaar_access_code')
+        _token_key = 'bazaar_access_code_{service_gateway.id}'
+
+        access_code = cache.get()
         endpoint = 'https://pardakht.cafebazaar.ir/devapi/v2/auth/token/'
         if access_code is None and cache.get('bazaar_token') is None:
             data = {
                 "grant_type": "authorization_code",
-                "code": gateway.properties.get('auth_code'),
-                "redirect_uri": gateway.properties.get('redirect_uri'),
-                "client_id": gateway.properties.get('client_id'),
-                "client_secret": gateway.properties.get('client_secret')
+                "code": service_gateway.properties.get('auth_code'),
+                "redirect_uri": service_gateway.properties.get('redirect_uri'),
+                "client_id": service_gateway.properties.get('client_id'),
+                "client_secret": service_gateway.properties.get('client_secret')
             }
             response = requests.post(endpoint, data=data)
             logger.info(f'getting bazaar token: {response.text}')
             response.raise_for_status()
             res_json = response.json()
             access_code = res_json.get('access_token')
-            cache.set('bazaar_access_code', access_code)
+            cache.set('bazaar_access_code', access_code, res_json.get('expires_in', 3600000))
             logger.info('set bazzar access code was successful')
-            cache.set('bazaar_token', json.dumps(res_json), 60 * 60 * 3600)
-            return access_code
+            cache.set('bazaar_token', json.dumps(res_json), None)
+
         elif access_code is None and cache.get('bazaar_token') is not None:
             refresh_token = json.loads(cache.get('bazaar_token')).get('refresh_token')
             data = {
                 "grant_type": "refresh_token",
-                "client_id": gateway.properties.get('client_id'),
-                "client_secret": gateway.properties.get('client_secret'),
+                "client_id": service_gateway.properties.get('client_id'),
+                "client_secret": service_gateway.properties.get('client_secret'),
                 "refresh_token": refresh_token
             }
             response = requests.post(endpoint, data=data)
@@ -50,9 +52,8 @@ class BazaarService(object):
             access_code = res_json.get('access_token')
             cache.set('bazaar_access_code', access_code)
             logger.info('refreshed bazzar access code was successful')
-            return access_code
-        else:
-            return access_code
+
+        return access_code
 
     @staticmethod
     def verify_purchase(order, purchase_token):
@@ -74,8 +75,7 @@ class BazaarService(object):
             if response.status_code == 200:
                 purchase_verified = True
             else:
-                logger.warning(
-                    f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
+                logger.warning(f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
         except Exception as e:
             logger.error(f"bazaar purchase verification got error for order {order.id}: {e}")
 
