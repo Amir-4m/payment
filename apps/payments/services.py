@@ -1,12 +1,10 @@
 import json
 import logging
-import os
 
 import requests
 import zeep
 from datetime import datetime
 from django.core.cache import caches
-from django.conf import settings
 
 from zeep.cache import InMemoryCache
 from zeep.transports import Transport
@@ -18,40 +16,44 @@ class BazaarService(object):
     @staticmethod
     def get_access_token(service_gateway):
         cache = caches['payments']
-        _token_key = 'bazaar_access_code_{service_gateway.id}'
-
-        access_code = cache.get()
         endpoint = 'https://pardakht.cafebazaar.ir/devapi/v2/auth/token/'
-        if access_code is None and cache.get('bazaar_token') is None:
-            data = {
-                "grant_type": "authorization_code",
-                "code": service_gateway.properties.get('auth_code'),
-                "redirect_uri": service_gateway.properties.get('redirect_uri'),
-                "client_id": service_gateway.properties.get('client_id'),
-                "client_secret": service_gateway.properties.get('client_secret')
-            }
-            response = requests.post(endpoint, data=data)
-            logger.info(f'getting bazaar token: {response.text}')
-            response.raise_for_status()
-            res_json = response.json()
-            access_code = res_json.get('access_token')
-            cache.set('bazaar_access_code', access_code, res_json.get('expires_in', 3600000))
-            logger.info('set bazzar access code was successful')
-            cache.set('bazaar_token', json.dumps(res_json), None)
+        _token_key = 'bazaar_token_{service_gateway.id}'
+        _access_token_key = 'bazaar_access_code_{service_gateway.id}'
 
-        elif access_code is None and cache.get('bazaar_token') is not None:
-            refresh_token = json.loads(cache.get('bazaar_token')).get('refresh_token')
-            data = {
-                "grant_type": "refresh_token",
-                "client_id": service_gateway.properties.get('client_id'),
-                "client_secret": service_gateway.properties.get('client_secret'),
-                "refresh_token": refresh_token
-            }
-            response = requests.post(endpoint, data=data)
-            res_json = response.json()
-            access_code = res_json.get('access_token')
-            cache.set('bazaar_access_code', access_code)
-            logger.info('refreshed bazzar access code was successful')
+        access_code = cache.get(_access_token_key)
+        if access_code is None:
+            refresh_token = cache.get(_token_key).get('refresh_token')
+            if refresh_token:
+                data = {
+                    "grant_type": "refresh_token",
+                    "refresh_token": refresh_token,
+                    "client_id": service_gateway.properties.get('client_id'),
+                    "client_secret": service_gateway.properties.get('client_secret'),
+                }
+
+            else:
+                data = {
+                    "grant_type": "authorization_code",
+                    "code": service_gateway.properties.get('auth_code'),
+                    "client_id": service_gateway.properties.get('client_id'),
+                    "client_secret": service_gateway.properties.get('client_secret')
+                    "redirect_uri": service_gateway.properties.get('redirect_uri'),
+                }
+
+            _r = requests.post(endpoint, data=data)
+            logger.info(f'getting bazaar token, response status, {_r.status_code} response body,: {_r.text}, data: {data}')
+            try:
+                _r.raise_for_status()
+            except requests.HTTPError:
+                cache.delete(_token_key)
+                raise
+
+            res = _r.json()
+            access_code = res.get('access_token')
+
+            cache.set(_access_token_key, access_code, res.get('expires_in', 3600000))
+            # This cache should never be expired
+            cache.set(_token_key, res, None)
 
         return access_code
 
