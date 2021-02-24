@@ -117,9 +117,11 @@ class PurchaseAPIView(viewsets.ViewSet):
             ).select_for_update(of=('self',)).get(
                 id=order.id
             )
-            purchase_verified = BazaarService.verify_purchase(
+            purchase_verified = BazaarService().verify_purchase(
                 order=payment,
-                purchase_token=serializer.validated_data['purchase_token']
+                purchase_token=serializer.validated_data['purchase_token'],
+                redirect_url=request.build_abolute_uri(
+                    reverse('bazaar-token', kwargs={'gateway_id': order.service_gateway.id}))
             )
 
         return Response({'purchase_verified': purchase_verified})
