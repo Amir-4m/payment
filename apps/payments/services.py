@@ -13,71 +13,73 @@ logger = logging.getLogger(__name__)
 
 
 class BazaarService(object):
-    @staticmethod
-    def get_access_token(service_gateway):
+    TOKEN_URL = "https://pardakht.cafebazaar.ir/devapi/v2/auth/token/"
+    VERIFY_URL = "https://pardakht.cafebazaar.ir/devapi/v2/api/"
+
+    def get_access_token(self, service_gateway):
         cache = caches['payments']
-        endpoint = 'https://pardakht.cafebazaar.ir/devapi/v2/auth/token/'
-        _token_key = 'bazaar_token_{service_gateway.id}'
         _access_token_key = 'bazaar_access_code_{service_gateway.id}'
+
+        sg_properties = service_gateway.properties
 
         access_code = cache.get(_access_token_key)
         if access_code is None:
-            refresh_token = cache.get(_token_key).get('refresh_token')
+            token_data = sg_properties.get('token_data') or {}
+            refresh_token = token_data.get('refresh_token')
             if refresh_token:
                 data = {
                     "grant_type": "refresh_token",
                     "refresh_token": refresh_token,
-                    "client_id": service_gateway.properties.get('client_id'),
-                    "client_secret": service_gateway.properties.get('client_secret'),
+                    "client_id": sg_properties.get('client_id'),
+                    "client_secret": sg_properties.get('client_secret'),
                 }
 
             else:
                 data = {
                     "grant_type": "authorization_code",
-                    "code": service_gateway.properties.get('auth_code'),
-                    "client_id": service_gateway.properties.get('client_id'),
-                    "client_secret": service_gateway.properties.get('client_secret')
-                    "redirect_uri": service_gateway.properties.get('redirect_uri'),
+                    "code": sg_properties.get('auth_code'),
+                    "client_id": sg_properties.get('client_id'),
+                    "client_secret": sg_properties.get('client_secret'),
+                    "redirect_uri": sg_properties.get('redirect_uri'),
                 }
 
-            _r = requests.post(endpoint, data=data)
+            _r = requests.post(self.TOKEN_URL, data=data)
             logger.info(f'getting bazaar token, response status, {_r.status_code} response body,: {_r.text}, data: {data}')
             try:
                 _r.raise_for_status()
             except requests.HTTPError:
-                cache.delete(_token_key)
-                raise
+                token_data = {}
+            else:
+                token_data = _r.json()
+                access_code = token_data['access_token']
+                cache.set(_access_token_key, access_code, token_data.get('expires_in', 3600000))
 
-            res = _r.json()
-            access_code = res.get('access_token')
+            sg_properties.update({'token_data': token_data})
 
-            cache.set(_access_token_key, access_code, res.get('expires_in', 3600000))
-            # This cache should never be expired
-            cache.set(_token_key, res, None)
+            service_gateway.properties = sg_properties
+            service_gateway.save()
 
         return access_code
 
-    @staticmethod
-    def verify_purchase(order, purchase_token):
+    def verify_purchase(self, order, purchase_token):
         purchase_verified = False
         package_name = order.properties.get('package_name')
         product_id = order.properties.get('sku')
-        iab_base_api = "https://pardakht.cafebazaar.ir/devapi/v2/api"
         iab_api_path = "validate/{}/inapp/{}/purchases/{}/".format(
             package_name,
             product_id,
             purchase_token
         )
-        iab_url = "{}/{}".format(iab_base_api, iab_api_path)
+        iab_url = "{}{}".format(self.VERIFY_URL, iab_api_path)
         try:
             access_token = BazaarService.get_access_token(order.service_gateway)
             headers = {'Authorization': access_token}
             response = requests.get(iab_url, headers=headers)
             order.log = response.json()
-            if response.status_code == 200:
-                purchase_verified = True
-            else:
-                logger.warning(f"bazaar purchase were not verified for order {order.id} with response : {response.text}")
+            response.raise_for_status()
+            purchase_verified = True
+        except requests.HTTPError as e:
+            logger.warning(f"bazaar purchase not verified for order {order.id} with status: {e.response.status_code}, response : {e.response.text}")
         except Exception as e:
             logger.error(f"bazaar purchase verification got error for order {order.id}: {e}")
 
