@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from .models import Gateway, Order, ServiceGateway
 
@@ -26,3 +28,13 @@ class OrderModelAdmin(admin.ModelAdmin):
 class ServiceGatewayModelAdmin(admin.ModelAdmin):
     list_display = ('title', 'id', 'service', 'is_enable', 'created_time', 'updated_time')
     list_filter = ('is_enable',)
+    change_form_template = "payments/admin/change-form.html"
+
+    def response_change(self, request, obj):
+        if "update_auth_code" in request.POST:
+            if 'client_id' not in obj.properties:
+                messages.error(request, 'client id does not exists for this gateway.')
+                return HttpResponseRedirect('.')
+            url = f"https://pardakht.cafebazaar.ir/devapi/v2/auth/authorize/?response_type=code&access_type=offline&redirect_uri={reverse('bazaar-token', kwargs={'gateway_id': obj.id})}&client_id={obj.properties['client_id']}"
+            return HttpResponseRedirect(url)
+        return super().response_change(request, obj)

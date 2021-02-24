@@ -16,7 +16,7 @@ class BazaarService(object):
     TOKEN_URL = "https://pardakht.cafebazaar.ir/devapi/v2/auth/token/"
     VERIFY_URL = "https://pardakht.cafebazaar.ir/devapi/v2/api/"
 
-    def get_access_token(self, service_gateway):
+    def get_access_token(self, service_gateway, redirect_url):
         cache = caches['payments']
         _access_token_key = f'bazaar_access_code_{service_gateway.id}'
 
@@ -40,7 +40,7 @@ class BazaarService(object):
                     "code": sg_properties.get('auth_code'),
                     "client_id": sg_properties.get('client_id'),
                     "client_secret": sg_properties.get('client_secret'),
-                    "redirect_uri": sg_properties.get('redirect_uri'),
+                    "redirect_uri": redirect_url,
                 }
 
             _r = requests.post(self.TOKEN_URL, data=data)
@@ -61,7 +61,7 @@ class BazaarService(object):
 
         return access_code
 
-    def verify_purchase(self, order, purchase_token):
+    def verify_purchase(self, order, purchase_token, redirect_url):
         purchase_verified = False
         package_name = order.properties.get('package_name')
         product_id = order.properties.get('sku')
@@ -72,7 +72,7 @@ class BazaarService(object):
         )
         iab_url = "{}{}".format(self.VERIFY_URL, iab_api_path)
         try:
-            access_token = BazaarService.get_access_token(order.service_gateway)
+            access_token = self.get_access_token(order.service_gateway, redirect_url)
             headers = {'Authorization': access_token}
             response = requests.get(iab_url, headers=headers)
             order.log = response.json()

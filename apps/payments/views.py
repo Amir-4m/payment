@@ -1,14 +1,13 @@
 import logging
-from urllib.parse import urlencode
-from datetime import datetime
 
 from django.db import transaction
-from django.http import HttpResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from django.core.cache import caches
 
 from .models import Order, Gateway, ServiceGateway
 from .services import SamanService, MellatService
@@ -18,7 +17,20 @@ logger = logging.getLogger(__name__)
 
 
 def bazaar_token_view(request, *args, **kwargs):
-    return HttpResponse()
+    gateway_id = kwargs.get('gateway_id')
+    code = request.GET.get('code')
+    if gateway_id:
+        try:
+            gateway = ServiceGateway.objects.get(id=gateway_id)
+            gateway.properties['auth_code'] = code
+            gateway.properties['token_data'] = {}
+            cache = caches['payments']
+            cache.delete(f'bazaar_access_code_{gateway_id}')
+            gateway.save()
+            return HttpResponseRedirect(reverse('admin:payments_servicegateway_change', args=gateway.id))
+        except Exception as e:
+            logger.error(f'updating gateway {gateway_id} auth code failed: {e}')
+    return HttpResponse('')
 
 
 class GetBankView(View):
