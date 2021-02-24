@@ -10,7 +10,7 @@ from django.views.generic import View
 from django.core.cache import caches
 
 from .models import Order, Gateway, ServiceGateway
-from .services import SamanService, MellatService
+from .services import SamanService, MellatService, BazaarService
 from .utils import url_parser
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,10 @@ def bazaar_token_view(request, *args, **kwargs):
             cache = caches['payments']
             cache.delete(f'bazaar_access_code_{gateway_id}')
             gateway.save()
+            BazaarService().get_access_token(
+                gateway,
+                request.build_absolute_uri(reverse('bazaar-token', kwargs={'gateway_id': gateway_id}))
+            )
             return HttpResponseRedirect(reverse('admin:payments_servicegateway_change', args=gateway.id))
         except Exception as e:
             logger.error(f'updating gateway {gateway_id} auth code failed: {e}')
@@ -157,7 +161,9 @@ def render_bank_page(
             "form_data": {
                 "ResNum": invoice_id,
                 "MID": merchant_id,
-                "RedirectURL": reverse('verify-payment', kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN}),
+                "RedirectURL": request.build_absolute_uri(
+                    reverse('verify-payment', kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
+                ),
                 "Amount": amount * 10,
                 "CellNumber": phone_number,
             }
