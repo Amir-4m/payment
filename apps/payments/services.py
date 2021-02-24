@@ -105,7 +105,7 @@ class SamanService:
             )
 
             try:
-                wsdl = order.service_gateway.properties.get('verify_url')
+                wsdl = order.service_gateway.saman_verify_url
                 mid = order.service_gateway.properties.get('merchant_id')
                 client = zeep.Client(wsdl=wsdl, transport=self.transport)
                 res = client.service.verifyTransaction(str(reference_id), str(mid))
@@ -125,46 +125,68 @@ class SamanService:
 class MellatService:
     transport = Transport(cache=InMemoryCache())
 
-    def request_mellat(self, order):
+    def request_mellat(self, order, callback_url):
         try:
-            wsdl = order.service_gateway.properties.get('request_url')
+            wsdl = order.service_gateway.mellat_wsdl
             terminal_id = order.service_gateway.properties.get('merchant_id')
             username = order.service_gateway.properties.get('username')
             password = order.service_gateway.properties.get('password')
-            order_id = order.updated_time.strftime('%Y%m%d%H%M')
+            order_id = order.updated_time.strftime('%y%m%d%H%M%S')
             amount = order.price * 10
             local_date = datetime.now().strftime("%Y%m%d")
             local_time = datetime.now().strftime("%H%M%S")
             ref_id = order.transaction_id
-            callback_url = order.properties['redirect_url']
+            callback_url = callback_url
             payer_id = order.service.id
+            order.properties['order_id'] = order_id
             client = zeep.Client(wsdl=wsdl, transport=self.transport)
             res = client.service.bpPayRequest(
                 terminal_id, str(username), str(password),
                 order_id, amount, local_date,
                 local_time, str(ref_id), callback_url, payer_id
             )
-
             if res.split(',')[0] == '0':
-                order.properties['hash_code'] = res.split(',')[1]
-                order.save()
-                return order.properties['hash_code']
-            return None
+                order.reference_id = res.split(',')[1]
         except Exception as e:
             logger.error(str(e))
 
+        order.save()
+        return order.reference_id
+
     def verify_mellat(self, order, data):
-        reference_id = data.get("RefNum", "")
+        reference_id = data.get("SaleReferenceId", "")
         order.log = json.dumps(data)
         purchase_verified = False
         try:
-            wsdl = order.service_gateway.properties.get('verify_url')
-            mid = order.service_gateway.properties.get('merchant_id')
-            username = order.service_gateway.properties.get('username')
-            password = order.service_gateway.properties.get('password')
-            client = zeep.Client(wsdl=wsdl, transport=self.transport)
-            res = client.service.verifyTransaction(mid, str(username), str(password), 11, 10)
-            if int(res) == order.price * 10:
-                purchase_verified = True
+            if int(data['ResCode']) == 0 and int(data['FinalAmount']) == order.price * 10:
+                wsdl = order.service_gateway.mellat_wsdl
+                terminal_id = order.service_gateway.properties.get('merchant_id')
+                username = order.service_gateway.properties.get('username')
+                password = order.service_gateway.properties.get('password')
+                order_id = data.get('SaleOrderId')
+                client = zeep.Client(wsdl=wsdl, transport=self.transport)
+                res = client.service.bpVerifyRequest(
+                    terminal_id, str(username), str(password),
+                    order_id, order.properties['order_id'], reference_id
+                )
+                logger.info(f'verifying payment {order.transaction_id} result: {res}')
+                if int(res) == 0:
+                    res_settle = client.service.bpSettleRequest(
+                        terminal_id, str(username), str(password),
+                        order_id, order.properties['order_id'], reference_id
+                    )
+                    logger.info(f'settling payment {order.transaction_id} result: {res}')
+                    if int(res_settle) == 0:
+                        logger.info(f'order {order.transaction_id} settle payment done. {res_settle}')
+                        purchase_verified = True
+
+            else:
+                logger.warning(f'transaction is not valid for order {order.transaction_id}')
+
         except Exception as e:
             logger.error(str(e))
+
+        order.is_paid = purchase_verified
+        order.properties['SaleReferenceId'] = reference_id
+        order.save()
+        logger.info(f'verifing order {order.id} done with status :{purchase_verified}')

@@ -62,7 +62,7 @@ class ServiceGateway(models.Model):
     display_name = models.CharField(_('display name'), max_length=120)
     image = models.ImageField(upload_to='gateways/images')
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
-    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE, null=True, blank=True)
+    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE, null=True,blank=True)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(_('is enable'), default=True)
@@ -85,6 +85,21 @@ class ServiceGateway(models.Model):
 
     def __str__(self):
         return self.display_name
+
+    @property
+    def mellat_wsdl(self):
+        return 'https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl'
+
+    @property
+    def saman_verify_url(self):
+        return 'https://verify.sep.ir/payments/referencepayment.asmx?WSDL'
+
+    @property
+    def gateway_url(self):
+        if self.code == ServiceGateway.FUNCTION_SAMAN:
+            return 'https://sep.shaparak.ir/Payment.aspx'
+        elif self.code == ServiceGateway.FUNCTION_MELLAT:
+            return 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat'
 
 
 class Order(models.Model):
