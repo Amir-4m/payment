@@ -20,23 +20,24 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
-    redirect_url = serializers.URLField(write_only=True)
+    redirect_url = serializers.URLField(write_only=True, required=False)
+    # TODO: needs validation
+    phone_number = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
         fields = (
-            'gateway', 'transaction_id', 'price', 'service_reference',
-            'properties', 'is_paid', 'redirect_url', 'gateways'
+            'price', 'service_reference',
+            'properties', 'redirect_url', 'phone_number',
+            'transaction_id', 'is_paid', 'gateway', 'gateways'
         )
-        extra_kwargs = {'properties': {'read_only': True}}
-        read_only_fields = ('gateway', 'is_paid')
+        read_only_fields = ('transaction_id', 'is_paid', 'gateway')
 
     def get_gateways(self, obj):
+        request = self.context['request']
         service = self.context['request'].auth['service']
-        return ServiceGatewaySerializer(
-            service.service_gateways.filter(is_enable=True),
-            many=True,
-            context={'request': self.context['request']}).data
+        _gateway_list = service.service_gateways.filter(is_enable=True)
+        return ServiceGatewaySerializer(_gateway_list, many=True, context={'request': request}).data
 
     def validate_gateway(self, obj):
         service = self.context['request'].auth['service']
@@ -61,7 +62,12 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         price = validated_data.get('price')
         service_reference = validated_data.get('service_reference')
-        properties = {'redirect_url': validated_data['redirect_url']}
+        properties = validated_data.get('properties', {})
+        if validated_data.get('redirect_url'):
+            properties.update({'redirect_url': validated_data['redirect_url']})
+        if validated_data.get('phone_number'):
+            properties.update({'phone_number': validated_data['phone_number']})
+
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
             service=validated_data['service'],
@@ -89,17 +95,17 @@ class PurchaseSerializer(serializers.Serializer):
         request = self.context['request']
         try:
             order = Order.objects.get(service=request.auth['service'], service_reference=value)
-            return order
         except Order.DoesNotExist:
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
+        return order
 
     def create(self, validated_data):
-        raise NotImplementedError('must be implemented')
+        pass
 
     def update(self, instance, validated_data):
-        raise NotImplementedError('must be implemented')
+        pass
 
 
 class VerifySerializer(serializers.Serializer):
@@ -121,7 +127,7 @@ class VerifySerializer(serializers.Serializer):
         return order
 
     def create(self, validated_data):
-        raise NotImplementedError('must be implemented')
+        pass
 
     def update(self, instance, validated_data):
-        raise NotImplementedError('must be implemented')
+        pass

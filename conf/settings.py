@@ -209,7 +209,6 @@ LOGGING = ({
 if DEVEL is False:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.logging import LoggingIntegration
 
     SENTRY_KEY = config('SENTRY_KEY')
     SENTRY_HOST = config('SENTRY_HOST')
@@ -218,7 +217,7 @@ if DEVEL is False:
 
     sentry_sdk.init(
         dsn=f"https://{SENTRY_KEY}@{SENTRY_HOST}/{SENTRY_PROJECT_ID}",
-        integrations=[DjangoIntegration(), LoggingIntegration()],
+        integrations=[DjangoIntegration()],
         default_integrations=False,
 
         # If you wish to associate users to errors (assuming you are using
