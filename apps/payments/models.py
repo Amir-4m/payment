@@ -62,7 +62,8 @@ class ServiceGateway(models.Model):
     display_name = models.CharField(_('display name'), max_length=120)
     image = models.ImageField(upload_to='gateways/images')
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
-    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE, null=True,blank=True)
+    gateway = models.ForeignKey(Gateway, related_name='service_gateways', on_delete=models.CASCADE, null=True,
+                                blank=True)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
     is_enable = models.BooleanField(_('is enable'), default=True)
@@ -71,8 +72,8 @@ class ServiceGateway(models.Model):
     #     unique_together = ('service', 'gateway')
 
     def clean(self):
-        bazaar_params = ['auth_code', 'client_id', 'redirect_uri', 'client_secret']
-        bank_params = ['verify_url', 'gateway_url', 'merchant_id']
+        bazaar_params = ['client_id', 'client_secret']
+        bank_params = ['merchant_id']
 
         if self.code == self.FUNCTION_BAZAAR:
             for param in bazaar_params:

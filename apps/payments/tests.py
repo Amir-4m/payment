@@ -138,7 +138,7 @@ class BazaarViewTestCase(TestCase):
     view_name = 'bazaar-token'
 
     def test_get(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_id': 4})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -174,7 +174,7 @@ class GetBankViewTestCase(TestCase):
         html = f"""
         <input type="hidden" name="ResNum" value="{order.transaction_id}"/>
         <input type="hidden" name="MID" value="{order.service_gateway.properties['merchant_id']}"/>
-        <input type="hidden" name="RedirectURL" value="http://testserver/payments/verify/"/>
+        <input type="hidden" name="RedirectURL" value="http://testserver/payments/verify/SAMAN/"/>
         <input type="hidden" name="Amount" value="{order.price * 10}"/>
         <input type="hidden" name="CellNumber" value=""/>
         <input type="hidden" name="language" value="fa"/>
@@ -192,33 +192,33 @@ class VerifyViewTestCase(TestCase):
     view_name = 'verify-payment'
 
     def test_post_no_transaction_id(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
 
     def test_post_invalid_order(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
         response = self.client.post(url + '?transaction_id=cd61b980-649c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
 
     def test_post_order_paid_not_none(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
         response = self.client.post(url + '?transaction_id=cd61b980-6c3c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 404)
 
     def test_post_order_invalid_gateway(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
         response = self.client.post(url + '?transaction_id=cd61b980-6c5c-42fb-877f-0614054f56b6')
 
         self.assertEqual(response.status_code, 302)
 
     def test_post_invalid_uuid_form(self):
-        url = reverse(self.view_name)
+        url = reverse(self.view_name, kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN})
         response = self.client.post(url + '?transaction_id=test')
 
         self.assertEqual(response.status_code, 400)
@@ -226,14 +226,14 @@ class VerifyViewTestCase(TestCase):
     @patch('apps.payments.services.SamanService.verify_saman')
     def test_post_valid_order(self, mock_method):
         mock_method.return_value = True
-        url = reverse(self.view_name)
         order = Order.objects.get(transaction_id='cd61b980-6c9c-42fb-877f-0614054f56b6')
+        url = reverse(self.view_name, kwargs={'gateway_code': order.service_gateway.code})
         response = self.client.post(url + f'?transaction_id={order.transaction_id}')
         order.refresh_from_db()
         params = {
             'purchase_verified': True,
             'transaction_id': order.transaction_id,
-            'refNum': order.properties.get("RefNum")
+            'refNum': order.properties.get("RefNum") or order.reference_id
         }
 
         self.assertEqual(response.status_code, 302)
@@ -255,7 +255,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
             'gateway': ServiceGateway.objects.filter(service=self.service).first().id,
             'service_reference': 'hello',
             'price': 1000,
-            'redirect_url': 'test.com'
+            'redirect_url': 'http://www.test.com'
         }
         response = self.client.post(url, data=data, format='json')
         response_data = json.loads(force_text(response.content))
@@ -408,9 +408,10 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
     def test_verify(self, mock_method):
         mock_method.return_value = False
         url = reverse('purchase-verify')
+        order = Order.objects.get(id=2)
         data = {
             'purchase_token': self.id(),
-            'order': Order.objects.get(id=2).id,
+            'order': order.id,
         }
         response = self.client.post(url, data=data, format='json')
         response_data = json.loads(force_text(response.content))
@@ -421,7 +422,8 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
         )
         mock_method.assert_called_once_with(
             order=Order.objects.get(id=data['order']),
-            purchase_token=self.id()
+            purchase_token=self.id(),
+            redirect_url=f'http://testserver/payments/bazaar-token/{order.service_gateway.id}/'
         )
 
 

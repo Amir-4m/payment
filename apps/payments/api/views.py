@@ -120,7 +120,7 @@ class PurchaseAPIView(viewsets.ViewSet):
             purchase_verified = BazaarService().verify_purchase(
                 order=payment,
                 purchase_token=serializer.validated_data['purchase_token'],
-                redirect_url=request.build_abolute_uri(
+                redirect_url=request.build_absolute_uri(
                     reverse('bazaar-token', kwargs={'gateway_id': order.service_gateway.id}))
             )
 
