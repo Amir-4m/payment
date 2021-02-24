@@ -34,12 +34,16 @@ class GetBankView(View):
         if payment.is_paid is not None or payment.service_gateway is None:
             raise Http404('No order has been found !')
         if payment.service_gateway.code == ServiceGateway.FUNCTION_MELLAT:
-            ref_id = MellatService().request_mellat(payment)
+            ref_id = MellatService().request_mellat(
+                payment, request.build_absolute_uri(
+                    reverse('verify-payment', kwargs={'gateway_code': ServiceGateway.FUNCTION_MELLAT})
+                )
+            )
         return render_bank_page(
             request,
             payment.service_gateway.code,
             payment.transaction_id,
-            payment.service_gateway.properties.get('gateway_url'),
+            payment.service_gateway.gateway_url,
             payment.service_gateway.properties.get('merchant_id'),
             payment.price,
             username=payment.service_gateway.properties.get('username'),
@@ -57,12 +61,17 @@ class VerifyView(View):
         return super(VerifyView, self).dispatch(request, *args, **kwargs)
 
     @transaction.atomic
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """
         this method use for bank response posts
         """
         data = request.POST
-        transaction_id = data.get("ResNum") or request.GET.get('transaction_id')
+        filter_data = {}
+        gateway_code = kwargs['gateway_code']
+        if gateway_code == ServiceGateway.FUNCTION_SAMAN:
+            filter_data = {"transaction_id": data.get("ResNum") or request.GET.get('transaction_id')}
+        elif gateway_code == ServiceGateway.FUNCTION_MELLAT:
+            filter_data = {"reference_id": data.get('RefId')}
 
         # check and validate parameters
         try:
@@ -70,33 +79,39 @@ class VerifyView(View):
                 'service',
                 'gateway'
             ).select_for_update(of=('self',)).get(
-                transaction_id=transaction_id
+                **filter_data
             )
         except Order.DoesNotExist:
-            logger.error(f'order with transaction_id {transaction_id} does not exists!')
+            logger.error(f'order with {filter_data} does not exists!')
             return HttpResponse("")
 
         except Exception as e:
             logger.error(
-                f'error occurred for verifying bank transaction for order with transaction_id {transaction_id}'
+                f'error occurred for verifying bank transaction for order with transaction_id {filter_data}'
             )
             return HttpResponseBadRequest(e)
 
         if payment.is_paid is not None:
-            logger.error(f'order with transaction_id {transaction_id} is_paid status is not None!')
+            logger.error(f'order with  {filter_data} is_paid status is not None!')
             raise Http404("No order has been found !")
         if payment.service_gateway.code == ServiceGateway.FUNCTION_SAMAN:
             purchase_verified = SamanService().verify_saman(
                 order=payment,
                 data=data
             )
+        elif payment.service_gateway.code == ServiceGateway.FUNCTION_MELLAT:
+            purchase_verified = MellatService().verify_mellat(
+                order=payment,
+                data=data
+            )
+
         else:
             purchase_verified = payment.is_paid
 
         params = {
             'purchase_verified': purchase_verified,
             'transaction_id': payment.transaction_id,
-            'refNum': data.get("RefNum")
+            'refNum': data.get("RefNum") or payment.reference_id
         }
 
         return redirect(url_parser(payment.properties.get('redirect_url'), params=params))
@@ -130,7 +145,7 @@ def render_bank_page(
             "form_data": {
                 "ResNum": invoice_id,
                 "MID": merchant_id,
-                "RedirectURL": request.build_absolute_uri(reverse('verify-payment')),
+                "RedirectURL": reverse('verify-payment', kwargs={'gateway_code': ServiceGateway.FUNCTION_SAMAN}),
                 "Amount": amount * 10,
                 "CellNumber": phone_number,
             }
