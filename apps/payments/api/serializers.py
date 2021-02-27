@@ -1,9 +1,16 @@
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from ..models import Order, ServiceGateway
+
+
+def phone_number_validator(value):
+    if re.match(r'^9\d{9}$', value) is None:
+        raise serializers.ValidationError(_('enter phone_number in the correct form!'))
 
 
 class ServiceGatewaySerializer(serializers.ModelSerializer):
@@ -21,8 +28,7 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
     redirect_url = serializers.URLField(write_only=True, required=False)
-    # TODO: needs validation
-    phone_number = serializers.CharField(write_only=True, required=False)
+    phone_number = serializers.CharField(write_only=True, required=False, validators=[phone_number_validator])
 
     class Meta:
         model = Order
