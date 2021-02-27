@@ -35,7 +35,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'price', 'service_reference',
+            'price', 'service_reference', 'sku', 'package_name',
             'properties', 'redirect_url', 'phone_number',
             'transaction_id', 'is_paid', 'gateway', 'gateways'
         )
