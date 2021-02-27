@@ -6,18 +6,12 @@ from apps.services.models import Service
 from apps.services.utils import random_secret_generator
 
 
-class ServiceGatewayInline(admin.TabularInline):
-    model = ServiceGateway
-    extra = 1
-
-
 @admin.register(Service)
 class ServiceModelAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_enable', 'created_time', 'updated_time')
     # filter_horizontal = ('gateways',)
     list_filter = ('is_enable',)
     readonly_fields = ('secret_key',)
-    inlines = (ServiceGatewayInline,)
     change_form_template = "services/admin/change-form.html"
 
     def response_change(self, request, obj):
