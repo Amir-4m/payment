@@ -67,6 +67,7 @@ class GetBankView(View):
             service_logo=payment.service.logo,
             service_color=payment.service.color,
             service_name=payment.service.name,
+            phone_number=payment.properties.get('phone_number', ''),
             ref_id=ref_id,
         )
 
@@ -152,7 +153,8 @@ def render_bank_page(
     if gateway_code == "MELLAT":
         render_context.update({
             "form_data": {
-                "RefId": kwargs.get('ref_id')
+                "RefId": kwargs.get('ref_id'),
+                "‫‪mobileNo‬‬": phone_number
             },
         })
 

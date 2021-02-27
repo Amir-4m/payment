@@ -1,9 +1,16 @@
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from ..models import Order, ServiceGateway
+
+
+def phone_number_validator(value):
+    if re.match(r'^989\d{9}$', value) is None:
+        raise serializers.ValidationError(_('enter phone_number in the correct form!'))
 
 
 class ServiceGatewaySerializer(serializers.ModelSerializer):
@@ -21,8 +28,9 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
     redirect_url = serializers.URLField(write_only=True, required=False)
-    # TODO: needs validation
-    phone_number = serializers.CharField(write_only=True, required=False)
+    phone_number = serializers.CharField(write_only=True, required=False, validators=[phone_number_validator])
+    sku = serializers.CharField(write_only=True, required=False)
+    package_name = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
@@ -67,6 +75,10 @@ class OrderSerializer(serializers.ModelSerializer):
             properties.update({'redirect_url': validated_data['redirect_url']})
         if validated_data.get('phone_number'):
             properties.update({'phone_number': validated_data['phone_number']})
+        if validated_data.get('sku'):
+            properties['sku'] = validated_data['sku']
+        if validated_data.get('package_name'):
+            properties['package_name'] = validated_data['package_name']
 
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
