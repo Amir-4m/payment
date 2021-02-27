@@ -29,6 +29,8 @@ class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
     redirect_url = serializers.URLField(write_only=True, required=False)
     phone_number = serializers.CharField(write_only=True, required=False, validators=[phone_number_validator])
+    sku = serializers.CharField(write_only=True, required=False)
+    package_name = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
@@ -73,6 +75,10 @@ class OrderSerializer(serializers.ModelSerializer):
             properties.update({'redirect_url': validated_data['redirect_url']})
         if validated_data.get('phone_number'):
             properties.update({'phone_number': validated_data['phone_number']})
+        if validated_data.get('sku'):
+            properties['sku'] = validated_data['sku']
+        if validated_data.get('package_name'):
+            properties['package_name'] = validated_data['package_name']
 
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
