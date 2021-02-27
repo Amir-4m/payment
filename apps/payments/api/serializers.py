@@ -9,7 +9,7 @@ from ..models import Order, ServiceGateway
 
 
 def phone_number_validator(value):
-    if re.match(r'^9\d{9}$', value) is None:
+    if re.match(r'^989\d{9}$', value) is None:
         raise serializers.ValidationError(_('enter phone_number in the correct form!'))
 
 
