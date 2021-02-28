@@ -1,16 +1,20 @@
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ..models import Gateway, Order, ServiceGateway
+from ..models import Order, ServiceGateway
+
+
+def phone_number_validator(value):
+    if re.match(r'^989\d{9}$', value) is None:
+        raise serializers.ValidationError(_('enter phone_number in the correct form!'))
 
 
 class ServiceGatewaySerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='gateway.id')
     image_url = serializers.SerializerMethodField()
-    display_name = serializers.ReadOnlyField(source='gateway.display_name')
-    code = serializers.ReadOnlyField(source='gateway.code')
 
     class Meta:
         model = ServiceGateway
@@ -23,14 +27,15 @@ class ServiceGatewaySerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     gateways = serializers.SerializerMethodField()
-    redirect_url = serializers.CharField(write_only=True, required=False)
-    # TODO: needs validation
-    phone_number = serializers.CharField(write_only=True, required=False)
+    redirect_url = serializers.URLField(write_only=True, required=False)
+    phone_number = serializers.CharField(write_only=True, required=False, validators=[phone_number_validator])
+    sku = serializers.CharField(write_only=True, required=False)
+    package_name = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Order
         fields = (
-            'price', 'service_reference',
+            'price', 'service_reference', 'sku', 'package_name',
             'properties', 'redirect_url', 'phone_number',
             'transaction_id', 'is_paid', 'gateway', 'gateways'
         )
@@ -44,7 +49,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def validate_gateway(self, obj):
         service = self.context['request'].auth['service']
-        if not obj.services.filter(id=service.id).exists():
+        if not ServiceGateway.objects.filter(service_id=service.id, pk=obj.pk).exists():
             raise ValidationError(detail={'detail': _("service and gateway does not match!")})
         return obj
 
@@ -70,6 +75,10 @@ class OrderSerializer(serializers.ModelSerializer):
             properties.update({'redirect_url': validated_data['redirect_url']})
         if validated_data.get('phone_number'):
             properties.update({'phone_number': validated_data['phone_number']})
+        if validated_data.get('sku'):
+            properties['sku'] = validated_data['sku']
+        if validated_data.get('package_name'):
+            properties['package_name'] = validated_data['package_name']
 
         order, _created = Order.objects.get_or_create(
             service_reference=service_reference,
@@ -83,12 +92,12 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseSerializer(serializers.Serializer):
-    gateway = serializers.PrimaryKeyRelatedField(queryset=Gateway.objects.filter(is_enable=True))
+    gateway = serializers.PrimaryKeyRelatedField(queryset=ServiceGateway.objects.filter(is_enable=True))
     order = serializers.CharField(max_length=40)
 
     def validate_gateway(self, obj):
         request = self.context['request']
-        if not obj.services.filter(id=request.auth['service'].id).exists():
+        if not ServiceGateway.objects.filter(pk=obj.pk, service_id=request.auth['service'].id).exists():
             raise ValidationError(
                 detail={'detail': _("service and gateway does not match!")}
             )
@@ -123,7 +132,7 @@ class VerifySerializer(serializers.Serializer):
             raise ValidationError(
                 detail={'detail': _("order and service does not match!")}
             )
-        if order.gateway.code != Gateway.FUNCTION_BAZAAR:
+        if order.service_gateway.code != ServiceGateway.FUNCTION_BAZAAR:
             raise ValidationError(
                 detail={'detail': _("invalid gateway!")}
             )

@@ -3,6 +3,17 @@ include: "http://git.yourblueapi.com/gitlab-ci.yml"
 variables:
   PROJECT_DIR: "payment_gateway"
 
+.deploy:
+  stage: deploy
+  script:
+    - git pull
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - python manage.py collectstatic --noinput
+    - python manage.py makemigrations
+    - python manage.py migrate
+    - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
+
 test_staging:
   script:
     - python manage.py check
