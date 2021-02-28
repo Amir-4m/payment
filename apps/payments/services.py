@@ -194,3 +194,4 @@ class MellatService:
         order.properties['SaleReferenceId'] = reference_id
         order.save()
         logger.info(f'verifing order {order.id} done with status :{purchase_verified}')
+        return purchase_verified

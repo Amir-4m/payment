@@ -19,7 +19,7 @@ from rest_framework.test import APITestCase, APIClient
 from mock import patch
 
 from apps.payments.api.serializers import OrderSerializer, PurchaseSerializer, VerifySerializer
-from apps.payments.models import Gateway, Order, ServiceGateway
+from apps.payments.models import Order, ServiceGateway
 from apps.services.models import Service
 
 
@@ -55,83 +55,6 @@ class GatewayAPITestCase(PaymentBaseAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(expected_data, response_data)
-
-
-class GatewayModelAPITestCase(PaymentBaseAPITestCase):
-    def test_gateway_str(self):
-        instance = Gateway(
-            display_name='test',
-            code=Gateway.FUNCTION_SAMAN,
-            properties={
-                "verify_url": "test.com",
-                "gateway_url": "test.com/verify/",
-                "merchant_id": "1234"
-            }
-        )
-        self.assertEqual(instance.__str__(), instance.display_name)
-
-    def test_gateway_bank_properties(self):
-        instance = Gateway(
-            display_name='test',
-            code=Gateway.FUNCTION_SAMAN,
-            properties={
-                "verify_url": "test.com",
-                "gateway_url": "test.com/verify/",
-                "merchant_id": "1234"
-            }
-        )
-
-        self.assertIsNone(instance.clean())
-
-    def test_gateway_bank_invalid_properties(self):
-        instance = Gateway(
-            display_name='test',
-            code=Gateway.FUNCTION_SAMAN,
-            properties={
-                "not": "test.com",
-                "valid": "test.com/verify/",
-                "keys": "1234"
-            }
-        )
-
-        self.assertRaisesMessage(
-            ValidationError,
-            "verify_url should be provided in gateway properties!",
-            instance.clean
-
-        )
-
-    def test_gateway_psp__properties(self):
-        instance = Gateway(
-            display_name='test',
-            code=Gateway.FUNCTION_BAZAAR,
-            properties={
-                "auth_code": "test.com",
-                "client_id": "12345",
-                "redirect_uri": "1234",
-                "client_secret": '12345'
-            }
-        )
-
-        self.assertIsNone(instance.clean())
-
-    def test_gateway_psp_invalid_properties(self):
-        instance = Gateway(
-            display_name='test',
-            code=Gateway.FUNCTION_BAZAAR,
-            properties={
-                "not": "test.com",
-                "valid": "test.com/verify/",
-                "keys": "1234"
-            }
-        )
-
-        self.assertRaisesMessage(
-            ValidationError,
-            "auth_code should be provided in gateway properties!",
-            instance.clean
-
-        )
 
 
 class BazaarViewTestCase(TestCase):
@@ -270,7 +193,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
     def test_post_order_invalid_gateway(self):
         url = reverse('order-list')
         data = {
-            'service_gateway': Gateway.objects.get(id=4).id,
+            'service_gateway': ServiceGateway.objects.get(id=4).id,
             'price': 1000,
         }
         response = self.client.post(url, data=data, format='json')
@@ -284,7 +207,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
     def test_post_order_unavailable_gateway(self):
         url = reverse('order-list')
         data = {
-            'service_gateway': Gateway.objects.get(id=2).id,
+            'service_gateway': ServiceGateway.objects.get(id=2).id,
             'price': 1000,
         }
         response = self.client.post(url, data=data, format='json')
@@ -299,7 +222,7 @@ class OrderAPITestCase(PaymentBaseAPITestCase):
 class OrderModelTestCase(PaymentBaseAPITestCase):
     def test_order_properties(self):
         instance = Order(
-            gateway_id=1,
+            service_gateway_id=1,
             price=1000,
             properties={'redirect_url': 'www.rdu.com'}
         )
@@ -322,7 +245,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate_gateway(self):
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'price': 1000,
             'service_reference': 'hello'
         }
@@ -332,7 +255,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate_gateway_invalid_data(self):
         data = {
-            'gateway': Gateway.objects.last(),
+            'gateway': ServiceGateway.objects.last(),
             'price': 1000,
             'service_reference': 'hello'
         }
@@ -347,7 +270,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate(self):
         data = {
-            'gateway': Gateway.objects.last(),
+            'gateway': ServiceGateway.objects.last(),
             'price': 1000,
             'service_reference': 'hello'
         }
@@ -358,7 +281,7 @@ class OrderSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate_invalid_data(self):
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'price': 1000,
             'service_reference': 'testref'
         }
@@ -430,7 +353,7 @@ class PurchaseAPITestCase(PaymentBaseAPITestCase):
 class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
     def test_validate_gateway(self):
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'order': Order.objects.first()
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
@@ -439,7 +362,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate_gateway_invalid_data(self):
         data = {
-            'gateway': Gateway.objects.last(),
+            'gateway': ServiceGateway.objects.last(),
             'order': Order.objects.last()
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
@@ -454,7 +377,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
     def test_validate_order(self):
         order = Order.objects.first()
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'order': order.service_reference
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
@@ -463,7 +386,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate_order_invalid_data(self):
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'order': Order.objects.get(pk=4).service_reference
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
@@ -477,7 +400,7 @@ class PurchaseSerializerTestCase(PaymentBaseAPITestCase):
 
     def test_validate(self):
         data = {
-            'gateway': Gateway.objects.first(),
+            'gateway': ServiceGateway.objects.first(),
             'order': Order.objects.first()
         }
         serializer = PurchaseSerializer(data=data, context={'request': self.request})
