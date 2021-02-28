@@ -80,7 +80,7 @@ class PurchaseAPIView(viewsets.ViewSet):
         with transaction.atomic():
             payment = Order.objects.select_related(
                 'service',
-                'gateway'
+                'service_gateway'
             ).select_for_update(of=('self',)).get(
                 id=order.id
             )
@@ -113,7 +113,7 @@ class PurchaseAPIView(viewsets.ViewSet):
         with transaction.atomic():
             payment = Order.objects.select_related(
                 'service',
-                'gateway'
+                'service_gateway'
             ).select_for_update(of=('self',)).get(
                 id=order.id
             )

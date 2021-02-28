@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.core.cache import caches
 
-from .models import Order, Gateway, ServiceGateway
+from .models import Order, ServiceGateway
 from .services import SamanService, MellatService, BazaarService
 from .utils import url_parser
 
@@ -93,7 +93,7 @@ class VerifyView(View):
         try:
             payment = Order.objects.select_related(
                 'service',
-                'gateway'
+                'service_gateway'
             ).select_for_update(of=('self',)).get(
                 **filter_data
             )

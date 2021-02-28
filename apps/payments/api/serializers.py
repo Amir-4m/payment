@@ -37,9 +37,9 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = (
             'price', 'service_reference', 'sku', 'package_name',
             'properties', 'redirect_url', 'phone_number',
-            'transaction_id', 'is_paid', 'gateway', 'gateways'
+            'transaction_id', 'is_paid', 'service_gateway', 'gateways'
         )
-        read_only_fields = ('transaction_id', 'is_paid', 'gateway')
+        read_only_fields = ('transaction_id', 'is_paid', 'service_gateway')
 
     def get_gateways(self, obj):
         request = self.context['request']
