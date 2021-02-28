@@ -26,12 +26,11 @@ def bazaar_token_view(request, *args, **kwargs):
             gateway.properties['token_data'] = {}
             cache = caches['payments']
             cache.delete(f'bazaar_access_code_{gateway_id}')
-            gateway.save()
             BazaarService().get_access_token(
                 gateway,
                 request.build_absolute_uri(reverse('bazaar-token', kwargs={'gateway_id': gateway_id}))
             )
-            return HttpResponseRedirect(reverse('admin:payments_servicegateway_change', args=gateway.id))
+            return HttpResponseRedirect(reverse('admin:payments_servicegateway_change', args=[gateway.id]))
         except Exception as e:
             logger.error(f'updating gateway {gateway_id} auth code failed: {e}')
     return HttpResponse('')
