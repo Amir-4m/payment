@@ -29,7 +29,7 @@ class ServiceGatewayViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         service = self.request.auth['service']
         qs = super(ServiceGatewayViewSet, self).get_queryset()
-        return qs.filter(service=service, is_enable=True)
+        return qs.filter(service=service, is_enable=True).order_by('-priority')
 
 
 @method_decorator(name='list', decorator=swagger_auto_schema(

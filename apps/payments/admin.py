@@ -23,7 +23,7 @@ class OrderModelAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceGateway)
 class ServiceGatewayModelAdmin(admin.ModelAdmin):
-    list_display = ('title', 'display_name', 'service', 'is_enable', 'created_time', 'updated_time')
+    list_display = ('title', 'display_name', 'priority', 'service', 'is_enable', 'created_time', 'updated_time')
     list_filter = ('is_enable', 'service')
     change_form_template = "payments/admin/change-form.html"
     formfield_overrides = {
