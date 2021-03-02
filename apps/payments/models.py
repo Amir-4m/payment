@@ -29,6 +29,7 @@ class ServiceGateway(models.Model):
     service = models.ForeignKey('services.Service', related_name='service_gateways', on_delete=models.CASCADE)
     properties = JSONField(_("properties"), default=dict)
     code = models.CharField(_("code"), max_length=10, choices=GATEWAY_FUNCTIONS, default=FUNCTION_SAMAN)
+    priority = models.PositiveSmallIntegerField(_('priority'), default=1, db_index=True)
     is_enable = models.BooleanField(_('is enable'), default=True)
 
     # class Meta:
