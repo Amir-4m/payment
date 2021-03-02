@@ -14,14 +14,48 @@ variables:
     - python manage.py migrate
     - uwsgi --reload /tmp/$PROJECT_DIR-master.pid
 
-test_staging:
+.test:
+  stage: test
+  before_script:
+    - cp /var/www/$PROJECT_DIR/project/.env $CI_PROJECT_DIR/
+    - source $CI_PROJECT_DIR/venv/bin/activate
   script:
     - python manage.py check
     - python manage.py makemigrations
     - coverage run manage.py test
     - coverage html
     - coverage report
+  after_script:
+    - rm $CI_PROJECT_DIR/.env
   coverage: "/TOTAL.+ ([0-9]{1,3}%)/"
   artifacts:
     paths:
       - htmlcov
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - venv/
+    policy: pull
+
+
+build_prod:
+  extends:
+    - .build
+    - .staging
+  only:
+    refs:
+      - master
+    # - /^release-.*$/
+    # except:
+    # - branches
+
+test_prod:
+  extends:
+    - .test
+    - .staging
+  only:
+    refs:
+      - master
+    # - /^release-.*$/
+    # except:
+    # - branches
