@@ -37,25 +37,37 @@ variables:
       - venv/
     policy: pull
 
-
-build_prod:
+build:
   extends:
     - .build
     - .staging
   only:
     refs:
       - master
-    # - /^release-.*$/
-    # except:
-    # - branches
+      - develop
 
-test_prod:
+test:
   extends:
     - .test
     - .staging
   only:
     refs:
       - master
-    # - /^release-.*$/
-    # except:
-    # - branches
+      - develop
+
+
+build_staging:
+  only:
+    - /^release-.*$/
+
+build_prod:
+  only:
+    - /^release-.*$/
+
+test_staging:
+  only:
+    - /^release-.*$/
+
+test_prod:
+  only:
+    - /^release-.*$/
