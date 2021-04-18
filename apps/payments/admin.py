@@ -17,6 +17,7 @@ class OrderModelAdmin(admin.ModelAdmin):
         'transaction_id', 'service', 'service_gateway', 'price',
         'reference_id', 'is_paid', 'created_time', 'updated_time'
     )
+    date_hierarchy = 'created_time'
     list_filter = ('is_paid', 'service', 'service_gateway')
     search_fields = ('service_reference', 'service_reference', 'reference_id', 'transaction_id')
 
