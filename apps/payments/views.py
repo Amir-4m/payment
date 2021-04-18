@@ -153,7 +153,7 @@ def render_bank_page(
         render_context.update({
             "form_data": {
                 "RefId": kwargs.get('ref_id'),
-                "‫‪mobileNo‬‬": phone_number
+                "mobileNo": phone_number
             },
         })
 
